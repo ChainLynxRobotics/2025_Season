@@ -33,6 +33,7 @@ import com.ctre.phoenix6.signals.InvertedValue;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 import com.ctre.phoenix6.signals.SensorDirectionValue;
 import com.ctre.phoenix6.swerve.SwerveModuleConstants;
+
 import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
@@ -50,7 +51,7 @@ import java.util.Queue;
  * <p>Device configuration and other behaviors not exposed by TunerConstants can be customized here.
  */
 public class ModuleIOTalonFX implements ModuleIO {
-  private final SwerveModuleConstants constants;
+  private final SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> constants;
 
   // Hardware objects
   private final TalonFX driveTalon;
@@ -92,7 +93,7 @@ public class ModuleIOTalonFX implements ModuleIO {
   private final Debouncer turnConnectedDebounce = new Debouncer(0.5);
   private final Debouncer turnEncoderConnectedDebounce = new Debouncer(0.5);
 
-  public ModuleIOTalonFX(SwerveModuleConstants constants) {
+  public ModuleIOTalonFX(SwerveModuleConstants<TalonFXConfiguration, TalonFXConfiguration, CANcoderConfiguration> constants) {
     this.constants = constants;
     driveTalon = new TalonFX(constants.DriveMotorId, TunerConstants.DrivetrainConstants.CANBusName);
     turnTalon = new TalonFX(constants.SteerMotorId, TunerConstants.DrivetrainConstants.CANBusName);
@@ -100,7 +101,7 @@ public class ModuleIOTalonFX implements ModuleIO {
 
     // Configure drive motor
     var driveConfig = constants.DriveMotorInitialConfigs;
-    driveConfig.MotorOutputConfigs.NeutralMode = NeutralModeValue.Brake;
+    driveConfig.MotorOutput.NeutralMode = NeutralModeValue.Brake;
     driveConfig.Slot0 = constants.DriveMotorGains;
     driveConfig.Feedback.SensorToMechanismRatio = constants.DriveMotorGearRatio;
     driveConfig.TorqueCurrent.PeakForwardTorqueCurrent = constants.SlipCurrent;
@@ -124,6 +125,7 @@ public class ModuleIOTalonFX implements ModuleIO {
           case RemoteCANcoder -> FeedbackSensorSourceValue.RemoteCANcoder;
           case FusedCANcoder -> FeedbackSensorSourceValue.FusedCANcoder;
           case SyncCANcoder -> FeedbackSensorSourceValue.SyncCANcoder;
+          default -> throw new RuntimeException("Unexpected swerve configuration");
         };
     turnConfig.Feedback.RotorToSensorRatio = constants.SteerMotorGearRatio;
     turnConfig.MotionMagic.MotionMagicCruiseVelocity = 100.0 / constants.SteerMotorGearRatio;
@@ -139,10 +141,10 @@ public class ModuleIOTalonFX implements ModuleIO {
     tryUntilOk(5, () -> turnTalon.getConfigurator().apply(turnConfig, 0.25));
 
     // Configure CANCoder
-    CANcoderConfiguration cancoderConfig = constants.CANcoderInitialConfigs;
-    cancoderConfig.MagnetSensor.MagnetOffset = constants.CANcoderOffset;
+    CANcoderConfiguration cancoderConfig = constants.EncoderInitialConfigs;
+    cancoderConfig.MagnetSensor.MagnetOffset = constants.EncoderOffset;
     cancoderConfig.MagnetSensor.SensorDirection =
-        constants.CANcoderInverted
+        constants.EncoderInverted
             ? SensorDirectionValue.Clockwise_Positive
             : SensorDirectionValue.CounterClockwise_Positive;
     cancoder.getConfigurator().apply(cancoderConfig);
