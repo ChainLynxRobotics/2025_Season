@@ -1,10 +1,5 @@
 package frc.robot.commands;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.photonvision.PhotonUtils;
-
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
@@ -12,6 +7,9 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.photonvision.PhotonUtils;
 
 /** Auto align to specified April Tag. */
 public class AutoAim extends Command {
@@ -45,13 +43,18 @@ public class AutoAim extends Command {
               target.getPitch());
 
       // apply pid controller outputs to drivetrain controlling method
-      double moveOutput = DriveConstants.translationController.calculate(distance, DriveConstants.TAG_DISTANCE.in(Units.Meters));
-      double turnOutput = DriveConstants.rotationController.calculate(curPose.getRotation().getRadians(), target.getYaw());
+      double moveOutput =
+          DriveConstants.translationController.calculate(
+              distance, DriveConstants.TAG_DISTANCE.in(Units.Meters));
+      double turnOutput =
+          DriveConstants.rotationController.calculate(
+              curPose.getRotation().getRadians(), target.getYaw());
 
-      ChassisSpeeds speeds = new ChassisSpeeds(
-        moveOutput * drive.getMaxLinearSpeedMetersPerSec(),
-        0,
-        turnOutput * drive.getMaxAngularSpeedRadPerSec());
+      ChassisSpeeds speeds =
+          new ChassisSpeeds(
+              moveOutput * drive.getMaxLinearSpeedMetersPerSec(),
+              0,
+              turnOutput * drive.getMaxAngularSpeedRadPerSec());
       drive.runVelocity(speeds);
     }
   }
