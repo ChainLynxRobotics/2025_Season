@@ -58,6 +58,12 @@ import org.littletonrobotics.junction.AutoLogOutput;
 import org.littletonrobotics.junction.Logger;
 
 public class Drive extends SubsystemBase {
+  public static enum DriveModule {
+    FRONT_LEFT,
+    FRONT_RIGHT,
+    BACK_LEFT,
+    BACK_RIGHT
+  }
   // TunerConstants doesn't include these constants, so they are declared locally
   static final double ODOMETRY_FREQUENCY =
       new CANBus(TunerConstants.DrivetrainConstants.CANBusName).isNetworkFD() ? 250.0 : 100.0;
@@ -218,6 +224,12 @@ public class Drive extends SubsystemBase {
 
     // Update gyro alert
     gyroDisconnectedAlert.set(!gyroInputs.connected && Constants.currentMode != Mode.SIM);
+  }
+
+  public void runModule(DriveModule module, double speed, double rotation) {
+    Logger.recordOutput("Drive/" + module.name() + "/Speed", speed);
+    Logger.recordOutput("Drive/" + module.name() + "/Rotation", rotation);
+    modules[module.ordinal()].runOpenLoop(speed, rotation);
   }
 
   /**
