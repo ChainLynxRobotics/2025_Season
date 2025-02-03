@@ -37,6 +37,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
+import frc.robot.subsystems.lights.Lights;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -49,6 +50,7 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
+  private final Lights lights;
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -94,6 +96,7 @@ public class RobotContainer {
     }
 
     vision = new Vision(drive::updateEstimates);
+    lights = new Lights();
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
