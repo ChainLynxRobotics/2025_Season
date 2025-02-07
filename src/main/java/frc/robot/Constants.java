@@ -19,6 +19,9 @@ import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Newtons;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
 
+import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -111,6 +114,24 @@ public final class Constants {
   }
 
   public static class ElevatorConstants {
-    
+    //set actual value later
+    public static final int sparkMaxCANId = 0;
+
+    public static final Distance maxHight = Meters.of(1);
+
+    public static class Config {
+      public static final boolean inverted = false;
+      public static final IdleMode idleMode = IdleMode.kBrake;
+
+      public static final double positionConvertionFactor = 1000;
+      public static final double velocityConvertionFactor = 1000;
+
+      public static final FeedbackSensor feedbackSensor = FeedbackSensor.kPrimaryEncoder;
+      public static final double pidP = 1;
+      public static final double pidI = 0;
+      public static final double pidD = 0.5;
+      public static final double pidIZone = 0.05;
+      public static final double feedForward = 0.02;
+    }
   }
 }
