@@ -24,31 +24,37 @@ public class AutoAim extends Command {
 
   @Override
   public void execute() {
-    PhotonTrackedTarget target;
+    PhotonTrackedTarget target = null;
     Pose2d curPose = drive.getPose();
     var camOne = VisionConstants.aprilCamOne.getAllUnreadResults();
     var camTwo = VisionConstants.aprilCamTwo.getAllUnreadResults();
 
     if (!camOne.isEmpty() && !camTwo.isEmpty()) {
       var resultOne = camOne.get(camOne.size() - 1);
-      var targetOne = resultOne.getBestTarget();
       var resultTwo = camTwo.get(camTwo.size() - 1);
-      var targetTwo = resultTwo.getBestTarget();
-      target = targetOne.getPoseAmbiguity() < targetTwo.getPoseAmbiguity() ? targetOne : targetTwo;
+      if (resultOne.hasTargets() && resultTwo.hasTargets()) {
+        var targetOne = resultOne.getBestTarget();
+        var targetTwo = resultTwo.getBestTarget();
+        target =
+            targetOne.getPoseAmbiguity() < targetTwo.getPoseAmbiguity() ? targetOne : targetTwo;
+      }
     } else if (!camOne.isEmpty()) {
       var resultOne = camOne.get(camOne.size() - 1);
-      target = resultOne.getBestTarget();
+      if (resultOne.hasTargets()) {
+        target = resultOne.getBestTarget();
+      }
     } else if (!camTwo.isEmpty()) {
       var resultTwo = camTwo.get(camTwo.size() - 1);
-      target = resultTwo.getBestTarget();
-    } else {
-      target = null;
+      if (resultTwo.hasTargets()) {
+        target = resultTwo.getBestTarget();
+      }
     }
 
     if (target != null) {
+      PhotonTrackedTarget t = target;
       List<Integer> key =
           VisionConstants.tagToHeight.keySet().stream()
-              .filter(k -> k.contains(target.getFiducialId()))
+              .filter(k -> k.contains(t.getFiducialId()))
               .collect(Collectors.toList())
               .get(0);
       double distance =
@@ -58,13 +64,14 @@ public class AutoAim extends Command {
               VisionConstants.kCameraPitchRadians,
               target.getPitch());
 
+      System.out.println("distance to target is: " + distance);
       // apply pid controller outputs to drivetrain controlling method
       double moveOutput =
           DriveConstants.translationController.calculate(
               distance, DriveConstants.TAG_DISTANCE.in(Units.Meters));
       double turnOutput =
           DriveConstants.rotationController.calculate(
-              -curPose.getRotation().getRadians(), target.getYaw());
+              curPose.getRotation().getRadians(), target.getYaw());
 
       ChassisSpeeds speeds =
           new ChassisSpeeds(

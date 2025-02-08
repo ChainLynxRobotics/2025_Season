@@ -83,7 +83,7 @@ public final class Constants {
     public static final double camChassisZOffset = 0.0;
 
     public static final double tagDistSetpoint = 0.0;
-    public static final double kCameraHeight = 0.1;
+    public static final double kCameraHeight = 0.04;
     public static final double kCameraPitchRadians = 0;
     public static final Transform3d robotToCam =
         new Transform3d(
