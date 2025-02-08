@@ -108,5 +108,9 @@ public final class Constants {
 
     public static AprilTagFieldLayout aprilTagFieldLayout =
         AprilTagFieldLayout.loadField(AprilTagFields.kDefaultField);
+
+  public static class ClimberConstants {
+    public static final int kClimberMotorID = 1;
+  }
   }
 }
