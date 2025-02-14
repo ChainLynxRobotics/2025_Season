@@ -11,7 +11,6 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 public class Climber extends SubsystemBase {
 
   private SparkMax motorController;
-  private int multiplier;
   private DigitalInput m_limSwitchUpper;
   private DigitalInput m_limSwitchLower;
 
@@ -21,10 +20,7 @@ public class Climber extends SubsystemBase {
     motorController.set(0);
 
     m_limSwitchUpper = new DigitalInput(ClimberConstants.kUpperLimSwitchId);
-    
     m_limSwitchLower = new DigitalInput(ClimberConstants.kUpperLimSwitchId);
-
-    multiplier = 1;
 
     motorController.getEncoder().setPosition(0);
     
@@ -36,25 +32,25 @@ public class Climber extends SubsystemBase {
     SmartDashboard.putBoolean("lim motor up?", m_limSwitchUpper.get());
     SmartDashboard.putBoolean("lim motor low?", m_limSwitchLower.get());
     SmartDashboard.putNumber("climber encoder rots", motorController.getEncoder().getPosition());
-   // if (motorController.getEncoder().getPosition() < 0
-     //   || motorController.getEncoder().getPosition() > ClimberConfig.kUpperRotSoftStop) {
-      // motorController.set(0);
-      // rightController.set(0);
 }
   public double getmotorEncoderPosition() {
     return motorController.getEncoder().getPosition();
   }
   public void setMotor(boolean reverse) {
-    multiplier = reverse ? -1 : 1;
-    motorController.set(0.9 * multiplier);
+    int dir = reverse ? -1 : 1;
+    motorController.set(ClimberConstants.kClimberMotorMult * dir);
   }
 
   public void stopMotor() {
-    motorController.set(0);
+    motorController.stopMotor();
   }
 
   public SparkMax getmotor() {
     return motorController;
+  }
+  // neutral signal SHOULD then default to brake mode
+  public void Disable() {
+    motorController.disable();
   }
 
   public boolean getLimitUpperSwitchValue() {
