@@ -76,6 +76,9 @@ public class GyroIOPigeon2 implements GyroIO {
     inputs.yRotation = pigeon.getAccumGyroY().getValue();
     inputs.yAngularVelocity = pigeon.getAngularVelocityYDevice().getValue();
 
+    inputs.zRotation = pigeon.getAccumGyroZ().getValue();
+    inputs.zAngularVelocity = pigeon.getAngularVelocityZDevice().getValue();
+
     inputs.odometryYawTimestamps =
         yawTimestampQueue.stream().mapToDouble((Double value) -> value).toArray();
     inputs.odometryYawPositions =

@@ -29,6 +29,8 @@ public interface GyroIO {
     public AngularVelocity xAngularVelocity = DegreesPerSecond.of(0);
     public Angle yRotation = Degrees.of(0);
     public AngularVelocity yAngularVelocity = DegreesPerSecond.of(0);
+    public Angle zRotation = Degrees.of(0);
+    public AngularVelocity zAngularVelocity = DegreesPerSecond.of(0);
     public double[] odometryYawTimestamps = new double[] {};
     public Rotation2d[] odometryYawPositions = new Rotation2d[] {};
   }
