@@ -37,7 +37,7 @@ public class ClimbCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if (m_climber.getLimitUpperSwitchValue() || m_climber.getLimitLowerSwitchValue()){
+    if (m_climber.isLimitSwitch()){
       return true;
     }
   return false;
