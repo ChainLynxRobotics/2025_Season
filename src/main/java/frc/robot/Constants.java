@@ -132,7 +132,7 @@ public final class Constants {
       public static final double positionConvertionFactor = 1000;
       public static final double velocityConvertionFactor = 1000;
 
-      public static final FeedbackSensor feedbackSensor = FeedbackSensor.kPrimaryEncoder;
+      public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
       public static final double pidP = 1;
       public static final double pidI = 0;
       public static final double pidD = 0.5;
