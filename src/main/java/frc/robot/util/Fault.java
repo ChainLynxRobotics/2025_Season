@@ -74,6 +74,9 @@ public class Fault {
 
   /** Updates whether the fault is active and the state in the last call */
   public void updateFault() {
+    if (functionToCheckFault.apply(true).getValue()) {
+      System.out.println("Fault detected");
+    }
     hadFault = hasFault;
     hasFault = functionToCheckFault.apply(true).getValue();
   }
