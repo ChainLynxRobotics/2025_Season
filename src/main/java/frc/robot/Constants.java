@@ -44,8 +44,8 @@ public final class Constants {
   public static final Mode currentMode =
       Mode.REAL; // RobotBase.isReal() ? Mode.REAL : Mode.SIM; robot thinks it's fake wut
 
-  // Phisical values of the robot
-  public static final double ROBOT_MASS_KG = 74.088;
+  // TODO set these to actual robot
+  public static final double ROBOT_MASS_KG = 20;
   public static final double ROBOT_MOI = 6.883;
   public static final double WHEEL_COF = 1.2;
 
