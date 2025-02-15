@@ -49,7 +49,7 @@ public class Climber extends SubsystemBase {
     return motorController;
   }
   // neutral signal SHOULD then default to brake mode
-  public void Disable() {
+  public void disable() {
     motorController.disable();
   }
 
