@@ -1,5 +1,8 @@
 package frc.robot.util;
 
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.StringLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import frc.robot.util.Elastic.Notification.NotificationLevel;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,20 +14,28 @@ public class FaultChecker {
 
   public String subsystemName;
 
-  public FaultChecker(String subsytemName) {
-    this.subsystemName = subsytemName;
+  private DataLog log = DataLogManager.getLog();
+  private StringLogEntry stringLog = new StringLogEntry(log, subsystemName);
+
+  public FaultChecker(String commponentName) {
+    this.subsystemName = commponentName;
+    DataLogManager.start();
   }
 
   public void updateFaults() {
     for (Fault f : warningFaults) {
       f.updateFault();
+      System.out.println("updateing warningFaults");
       if (f.hasFault != f.hadFault) {
-        f.sendNotification(subsystemName);
+        System.out.println("log fault");
+        f.logFault(subsystemName, stringLog);
       }
     }
     for (Fault f : errorFaults) {
       f.updateFault();
+      System.out.println("updateing errorFaults");
       if (f.hasFault != f.hadFault) {
+        System.out.println("notify fault");
         f.sendNotification(subsystemName);
       }
     }
@@ -60,15 +71,6 @@ public class FaultChecker {
     }
     if (errorFaults != null && fault.level == NotificationLevel.ERROR) {
       this.errorFaults.add(fault);
-    }
-  }
-
-  public void sendNotifications() {
-    for (Fault f : warningFaults) {
-      f.sendNotification(subsystemName);
-    }
-    for (Fault f : errorFaults) {
-      f.sendNotification(subsystemName);
     }
   }
 

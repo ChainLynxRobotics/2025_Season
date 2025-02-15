@@ -229,8 +229,6 @@ public class ModuleIOTalonFX implements ModuleIO {
 
   @Override
   public void updateInputs(ModuleIOInputs inputs) {
-    updateFaults();
-
     // Refresh all signals
     var driveStatus =
         BaseStatusSignal.refreshAll(drivePosition, driveVelocity, driveAppliedVolts, driveCurrent);
@@ -312,17 +310,10 @@ public class ModuleIOTalonFX implements ModuleIO {
   public FaultChecker driveTalonFaultChecker = new FaultChecker("drive talon");
   public FaultChecker CANcoderFaultChecker = new FaultChecker("swerve CANcoder");
 
-  public boolean updateFaults() {
+  @Override
+  public void updateFaults() {
     turnTalonFaultChecker.updateFaults();
     driveTalonFaultChecker.updateFaults();
     CANcoderFaultChecker.updateFaults();
-
-    turnTalonFaultChecker.sendNotifications();
-    driveTalonFaultChecker.sendNotifications();
-    CANcoderFaultChecker.sendNotifications();
-
-    return turnTalonFaultChecker.isHealthy()
-        && driveTalonFaultChecker.isHealthy()
-        && CANcoderFaultChecker.isHealthy();
   }
 }
