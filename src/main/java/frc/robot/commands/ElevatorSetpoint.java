@@ -4,13 +4,8 @@
 
 package frc.robot.commands;
 
-import com.revrobotics.spark.SparkBase.ControlType;
-import static edu.wpi.first.units.Units.Meters;
-
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants.ElevatorConstants;
 import frc.robot.subsystems.*;
-import edu.wpi.first.units.measure.Distance;
 
 public class ElevatorSetpoint extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
@@ -28,22 +23,7 @@ public class ElevatorSetpoint extends Command {
   @Override
   public void initialize() {
     // how make integer...
-    
-    switch(stage) {
-      case 1:
-        m_subsystem.setSetPoint(ElevatorConstants.stageOneSetpoint);
-        break;
-      case 2:
-        m_subsystem.setSetPoint(ElevatorConstants.stageTwoSetpoint);
-        break;
-      case 3:
-        m_subsystem.setSetPoint(ElevatorConstants.stageThreeSetpoint);
-        break;
-      case 4:
-      m_subsystem.setSetPoint(ElevatorConstants.stageFourSetpoint);
-        break;
-
-    }
+    m_subsystem.setSetPoint(stage);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
