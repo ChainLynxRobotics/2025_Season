@@ -60,6 +60,7 @@ public class Module {
 
   public void periodic() {
     io.updateInputs(inputs);
+    io.updateFaults();
     Logger.processInputs("Drive/Module" + Integer.toString(index), inputs);
 
     // Calculate positions for odometry
