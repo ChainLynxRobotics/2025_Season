@@ -10,6 +10,7 @@ import frc.robot.subsystems.climber.*;
 public class ClimbCommand extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Climber m_climber;
+
   private final boolean reverse;
 
   public ClimbCommand(Climber climber, boolean reverse) {
@@ -37,9 +38,9 @@ public class ClimbCommand extends Command {
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    if (m_climber.isLimitSwitch()){
+    if (m_climber.isLimitSwitch()) {
       return true;
     }
-  return false;
-}
+    return false;
+  }
 }

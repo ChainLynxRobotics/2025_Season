@@ -1,12 +1,11 @@
 package frc.robot.subsystems.climber;
 
-
-import frc.robot.Constants.ClimberConstants;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+import frc.robot.Constants.ClimberConstants;
 
 public class Climber extends SubsystemBase {
 
@@ -16,7 +15,7 @@ public class Climber extends SubsystemBase {
 
   public Climber() {
     motorController = new SparkMax(ClimberConstants.kClimberMotorID, MotorType.kBrushless);
-    
+
     motorController.set(0);
 
     m_limSwitchUpper = new DigitalInput(ClimberConstants.kUpperLimSwitchId);
@@ -45,10 +44,11 @@ public class Climber extends SubsystemBase {
   public void disable() {
     motorController.disable();
   }
+
   public boolean isLimitSwitch() {
-    if(m_limSwitchLower.get() || m_limSwitchUpper.get()) {
+    if (m_limSwitchLower.get() || m_limSwitchUpper.get()) {
       return true;
     }
     return false;
   }
-  }
+}
