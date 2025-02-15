@@ -129,8 +129,8 @@ public final class Constants {
       public static final boolean inverted = false;
       public static final IdleMode idleMode = IdleMode.kBrake;
 
+      // TODO: factor to make full extension 1 
       public static final double positionConvertionFactor = 1000;
-      public static final double velocityConvertionFactor = 1000;
 
       public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
       public static final double pidP = 1;
