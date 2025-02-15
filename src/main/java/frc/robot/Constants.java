@@ -116,8 +116,14 @@ public final class Constants {
   public static class ElevatorConstants {
     // set actual value later
     public static final int sparkMaxCANId = 0;
-
+    public static final int sparkMaxFollowerCANId = 1;
     public static final Distance maxHight = Meters.of(1);
+    public static final Distance stageOneSetpoint = Meters.of(0);
+    public static final Distance stageTwoSetpoint = Meters.of(0);
+    public static final Distance stageThreeSetpoint = Meters.of(0);
+    public static final Distance stageFourSetpoint = Meters.of(0);
+
+    public static final Distance encoderOffset = Meters.of(0);
 
     public static class Config {
       public static final boolean inverted = false;

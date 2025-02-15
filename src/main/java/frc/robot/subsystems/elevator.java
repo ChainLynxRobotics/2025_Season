@@ -3,6 +3,8 @@ package frc.robot.subsystems;
 import static edu.wpi.first.units.Units.Meters;
 
 import com.revrobotics.spark.SparkBase.ControlType;
+import com.revrobotics.spark.SparkBase.PersistMode;
+import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -12,45 +14,58 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.Config;
 
-public class elevator extends SubsystemBase {
-  private SparkMax sparkMax = new SparkMax(ElevatorConstants.sparkMaxCANId, MotorType.kBrushless);
+import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 
-  private Distance setPoint = Meters.of(0);
+public class Elevator extends SubsystemBase {
+  private SparkMax sparkMaxLeader = new SparkMax(ElevatorConstants.sparkMaxFollowerCANId, MotorType.kBrushless);
+  private SparkMax sparkMaxFollower = new SparkMax(ElevatorConstants.sparkMaxCANId, MotorType.kBrushless);
+  private SparkAbsoluteEncoder encoder = sparkMaxLeader.getAbsoluteEncoder();
+  private ClosedLoopSlot slot = ClosedLoopSlot.kSlot0;
 
-  private SparkClosedLoopController pidController;
 
-  public elevator() {
-    SparkMaxConfig config = new SparkMaxConfig();
+  private Distance setpoint = Meters.of(0);
 
-    config.inverted(Config.inverted).idleMode(Config.idleMode);
-    config
-        .encoder
-        .positionConversionFactor(Config.positionConvertionFactor)
-        .velocityConversionFactor(Config.velocityConvertionFactor);
-    config
-        .closedLoop
-        .feedbackSensor(Config.feedbackSensor)
+  public SparkClosedLoopController pidControllerLeader;
+
+
+  public Elevator() {
+    SparkMaxConfig globalConfig = new SparkMaxConfig();
+    SparkMaxConfig followerConfig = new SparkMaxConfig();
+    SparkMaxConfig leaderConfig = new SparkMaxConfig();
+
+    globalConfig.idleMode(Config.idleMode);
+
+    globalConfig.
+    encoder.positionConversionFactor(Config.positionConvertionFactor)
+    .velocityConversionFactor(Config.velocityConvertionFactor);
+
+    globalConfig.
+      closedLoop.feedbackSensor(Config.feedbackSensor)
         .pidf(Config.pidP, Config.pidI, Config.pidD, Config.feedForward)
         .iZone(Config.pidIZone);
 
-    pidController = sparkMax.getClosedLoopController();
+    leaderConfig.apply(globalConfig).inverted(Config.inverted);
+
+    followerConfig.apply(globalConfig).follow(sparkMaxLeader);
+
+    pidControllerLeader = sparkMaxLeader.getClosedLoopController();
+    
+    sparkMaxLeader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    sparkMaxFollower.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   public void setSetPoint(Distance setpoint) {
-    this.setPoint = setpoint;
+    this.setpoint = setpoint;
   }
 
   @Override
   public void periodic() {
-    pidController.setReference(
-        (setPoint.in(Meters) / ElevatorConstants.maxHight.in(Meters)), ControlType.kPosition);
-  }
-
-  public void resetEncoder() {
-    sparkMax.getEncoder().setPosition(0);
+    pidControllerLeader.setReference(
+    (setpoint.in(Meters) / ElevatorConstants.maxHight.in(Meters)), ControlType.kPosition, slot);
   }
 
   public Distance getElevatorHight() {
-    return Meters.of(sparkMax.getEncoder().getPosition());
+    return Meters.of(encoder.getPosition()).minus(ElevatorConstants.encoderOffset);
   }
 }
