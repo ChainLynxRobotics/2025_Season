@@ -13,11 +13,8 @@
 
 package frc.robot;
 
-import static edu.wpi.first.units.Units.Degrees;
-import static edu.wpi.first.units.Units.Meters;
-import static edu.wpi.first.units.Units.MetersPerSecond;
-import static edu.wpi.first.units.Units.Newtons;
-import static edu.wpi.first.units.Units.RadiansPerSecond;
+
+import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -77,31 +74,33 @@ public final class Constants {
     public static final Distance kFieldWidth = Meters.of(16.54);
     public static final Distance kFieldHeight = Meters.of(8.229);
 
-    public static final Distance minCamDistToTag = Meters.of(0.5);
-    public static final Distance maxCamDistToTag = Meters.of(0.8);
-    public static final Distance maxVertDisp = Meters.of(0.2);
+    public static final Distance kMinCamDistToTag = Meters.of(0.5);
+    public static final Distance kMaxCamDistToTag = Meters.of(0.8);
+    public static final Distance kMaxVertDisp = Meters.of(0.2);
+    public static final Angle kRollBounds = Radians.of(0.2);
+    public static final Angle kPitchBounds = Radians.of(0.2);
 
-    public static final double camChassisXOffset = 0.0;
-    public static final double camChassisYOffset = -0.254;
-    public static final double camChassisZOffset = 0.1143;
+    public static final Distance kCamChassisXOffset = Inches.of(0.0);
+    public static final Distance kCamChassisYOffset = Inches.of(-10);
+    public static final Distance KCamChassisZOffset = Inches.of(4.5);
 
-    public static final Angle minAngError = Degrees.of(5);
-    public static final Distance minTransError = Meters.of(0.05);
+    public static final Angle kMinAngError = Degrees.of(5);
+    public static final Distance kMinTransError = Meters.of(0.05);
 
     // TODO placeholder offsets, need tuning
-    public static final Distance tagXOffset = Meters.of(0.1);
-    public static final Distance tagYOffset = Meters.of(0.2);
+    public static final Distance kTagXOffset = Meters.of(0.1);
+    public static final Distance kTagYOffset = Meters.of(0.2);
 
-    public static final double tagDistSetpoint = 0.1;
-    public static final double kCameraPitchRadians = Math.PI / 3;
+    public static final Distance tagDistSetpoint = Meters.of(0.1);
+    public static final Angle kCameraPitch = Radians.of(Math.PI / 3);
     public static final Transform3d robotToCamOne =
         new Transform3d(
-            new Translation3d(camChassisXOffset, camChassisYOffset, camChassisZOffset),
-            new Rotation3d(0, kCameraPitchRadians, 0));
+            new Translation3d(kCamChassisXOffset, kCamChassisYOffset, KCamChassisZOffset),
+            new Rotation3d(0, kCameraPitch.in(Radians), 0));
     public static final Transform3d robotToCamTwo =
         new Transform3d(
-            new Translation3d(camChassisXOffset, -camChassisYOffset, camChassisZOffset),
-            new Rotation3d(0, kCameraPitchRadians, 0));
+            new Translation3d(kCamChassisXOffset, -kCamChassisYOffset, KCamChassisZOffset),
+            new Rotation3d(0, kCameraPitch.in(Radians), 0));
 
     public static final Matrix<N3, N1> kMultiTagStdDevs =
         VecBuilder.fill(0.5, 0.5, Double.POSITIVE_INFINITY);

@@ -42,9 +42,9 @@ public class SnapToTarget extends Command {
     Pose2d finalPose =
         scorePose.plus(
             new Transform2d(
-                VisionConstants.tagXOffset.in(Units.Meters)
+                VisionConstants.kTagXOffset.in(Units.Meters)
                     * (DriverStation.getAlliance().get() == Alliance.Blue ? 1 : -1),
-                VisionConstants.tagYOffset.in(Units.Meters),
+                VisionConstants.kTagYOffset.in(Units.Meters),
                 new Rotation2d()));
     List<Waypoint> waypoints = PathPlannerPath.waypointsFromPoses(drivePose, finalPose);
     PathPlannerPath path =
