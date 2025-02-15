@@ -10,7 +10,7 @@ import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.Vision.TagInfo;
+import frc.robot.subsystems.vision.Vision.TagTuple;
 import java.util.List;
 import org.photonvision.PhotonUtils;
 
@@ -35,8 +35,8 @@ public class AutoAim extends Command {
 
   @Override
   public void initialize() {
-    angErr = VisionConstants.minAngError.in(Units.Degrees);
-    transErr = VisionConstants.minTransError.in(Units.Meters);
+    angErr = VisionConstants.kMinAngError.in(Units.Degrees);
+    transErr = VisionConstants.kMinTransError.in(Units.Meters);
   }
 
   @Override
@@ -50,10 +50,10 @@ public class AutoAim extends Command {
 
     Pose3d target = null;
     Pose2d curPose = drive.getPose();
-    List<TagInfo> bestTaggies = vision.getBestTags();
+    List<TagTuple> bestTaggies = vision.getBestTags();
     if (bestTaggies != null) {
       if (bestTaggies.size() != 0) {
-        TagInfo tagInfo = bestTaggies.get(bestTaggies.size() - 1);
+        TagTuple tagInfo = bestTaggies.get(bestTaggies.size() - 1);
         target = tagInfo.tagPose().get();
       }
     }
@@ -65,9 +65,9 @@ public class AutoAim extends Command {
     targetYaw = PhotonUtils.getYawToPose(curPose, target.toPose2d()).getDegrees();
     targetRange =
         PhotonUtils.calculateDistanceToTargetMeters(
-            VisionConstants.camChassisZOffset,
+            VisionConstants.KCamChassisZOffset,
             target.getZ(),
-            VisionConstants.kCameraPitchRadians,
+            VisionConstants.kCameraPitch,
             target.getRotation().getX());
 
     double curRot = curPose.getRotation().getDegrees();
@@ -85,8 +85,8 @@ public class AutoAim extends Command {
 
   @Override
   public boolean isFinished() {
-    if (angErr < VisionConstants.minAngError.in(Units.Degrees)
-        && transErr < VisionConstants.minTransError.in(Units.Meters)) {
+    if (angErr < VisionConstants.kMinAngError.in(Units.Degrees)
+        && transErr < VisionConstants.kMinTransError.in(Units.Meters)) {
       return true;
     }
     return false;
