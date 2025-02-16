@@ -31,8 +31,7 @@ public final class RobotMath {
    * @param upper upper bound to check against.
    * @return true if lower < measure < upper, false otherwise.
    */
-  public static <U extends Unit, M extends Measure<U>> M relativeAbs(
-      M measure, M relitiveZero) {
+  public static <U extends Unit, M extends Measure<U>> M relativeAbs(M measure, M relitiveZero) {
     return measure.gt(relitiveZero) ? measure : (M) relitiveZero.minus(measure).plus(relitiveZero);
   }
 }
