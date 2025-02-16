@@ -26,12 +26,11 @@ public final class RobotMath {
   }
 
   /**
-   * @param measure measure to check.
-   * @param lower lower bound to check against.
-   * @param upper upper bound to check against.
-   * @return true if lower < measure < upper, false otherwise.
+   * @param measure measure to get the absolute value of.
+   * @param relitiveZero the zero point of the absolute value.
+   * @return measure if mesure > relitiveZero, meausure fliped aroud relitiveZero otherwise.
    */
   public static <U extends Unit, M extends Measure<U>> M relativeAbs(M measure, M relitiveZero) {
-    return measure.gt(relitiveZero) ? measure : (M) relitiveZero.minus(measure).plus(relitiveZero);
+    return measure.gt(relitiveZero) ? measure : (M) relitiveZero.times(2).minus(measure);
   }
 }
