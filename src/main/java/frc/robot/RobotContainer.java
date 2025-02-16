@@ -169,7 +169,10 @@ public class RobotContainer implements Logged {
             manipulator
                 .spinRollers()
                 .until(manipulator::hasCoral)
-                .andThen(manipulator.setAngle(ManipulatorConstants.fullRoll.in(Units.Rotations))));
+                .andThen(
+                    sequence(
+                        manipulator.stopRollers(),
+                        manipulator.setAngle(ManipulatorConstants.fullRoll.in(Units.Rotations)))));
     // reset pivot
     opController.b().onTrue(manipulator.setAngle(0.0));
   }
