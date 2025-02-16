@@ -19,13 +19,17 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.VisionConstants;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
 import frc.robot.commands.SnapToTarget;
@@ -49,6 +53,8 @@ public class RobotContainer {
   // Subsystems
   private final Drive drive;
   private final Vision vision;
+
+  private final SendableChooser<Pose2d> startPoseLoc = new SendableChooser<>();
 
   // Controller
   private final CommandXboxController controller = new CommandXboxController(0);
@@ -116,6 +122,29 @@ public class RobotContainer {
 
     // Configure the button bindings
     configureButtonBindings();
+
+    startPoseLoc.setDefaultOption("default", new Pose2d());
+    // account for alliance (mirror x for red)
+    startPoseLoc.addOption(
+        "left",
+        new Pose2d(
+            new Translation2d(
+                VisionConstants.kFieldHeight.in(Units.Meters),
+                DriveConstants.chassisSize.in(Units.Meters) / 2),
+            new Rotation2d()));
+    startPoseLoc.addOption(
+        "center",
+        new Pose2d(
+            new Translation2d(
+                VisionConstants.kFieldHeight.in(Units.Meters) / 2,
+                DriveConstants.chassisSize.in(Units.Meters) / 2),
+            new Rotation2d()));
+    startPoseLoc.addOption(
+        "right",
+        new Pose2d(
+            new Translation2d(0, DriveConstants.chassisSize.in(Units.Meters) / 2),
+            new Rotation2d()));
+    drive.setPose(startPoseLoc.getSelected());
   }
 
   /**
