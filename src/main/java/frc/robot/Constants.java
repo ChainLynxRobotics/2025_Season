@@ -18,6 +18,7 @@ import static edu.wpi.first.units.Units.Meters;
 import static edu.wpi.first.units.Units.MetersPerSecond;
 import static edu.wpi.first.units.Units.Newtons;
 import static edu.wpi.first.units.Units.RadiansPerSecond;
+import static edu.wpi.first.units.Units.Rotations;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
@@ -71,6 +72,19 @@ public final class Constants {
     public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
     public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);
     public static final Force tipDeadband = Newtons.of(3);
+  }
+
+  public static class ManipulatorConstants {
+    public static final int PIVOT_ID = -1;
+    public static final int ROLLER_ID = -1;
+    public static final int LINE_BREAK_PORT = -1;
+
+    public static final Angle fullRoll = Rotations.of(0.4);
+    public static final double defaultRollerSpeed = 1.0;
+    public static final double kP = 0.1;
+    public static final double kI = 0;
+    public static final double kD = 0;
+    public static final double kFF = 0.2;
   }
 
   public static class VisionConstants {
