@@ -6,13 +6,11 @@ import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.util.RobotMath;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +33,8 @@ public class Vision extends SubsystemBase {
       EstimatedRobotPose visionEstimate, String cameraName, double ambiguity) {}
 
   /** A PhotonCamera and its corresponding PhotonPoseEstimator */
-  public static record PhotonPoseEstimatorTuple(PhotonCamera photonCamera, PhotonPoseEstimator estimator) {}
+  public static record PhotonPoseEstimatorTuple(
+      PhotonCamera photonCamera, PhotonPoseEstimator estimator) {}
 
   /** Tag id and tag Optional<Pose3d> on field */
   public static record TagTuple(Integer tagId, Optional<Pose3d> tagPose) {}
@@ -59,8 +58,8 @@ public class Vision extends SubsystemBase {
   private List<TagTuple> bestTags = new ArrayList<>();
 
   /**
-   *
-   * @param drivetrainUpdatePose Consumes vision PoseEstimates to update the Drivetrain's PoseEstimator
+   * @param drivetrainUpdatePose Consumes vision PoseEstimates to update the Drivetrain's
+   *     PoseEstimator
    */
   public Vision(Consumer<PoseEstimate> drivetrainUpdatePose) {
     this.cameras =
@@ -82,17 +81,17 @@ public class Vision extends SubsystemBase {
 
     // Updates the Drivetrain PoesEstimator with both camera streams
     this.cameras.stream()
-        .map(c -> Vision.updateAngleAndGetEstimate(c, allUnreadResults))  //
+        .map(c -> Vision.updateAngleAndGetEstimate(c, allUnreadResults)) //
         .filter(Objects::nonNull)
         .flatMap(Optional::stream)
         .filter(Objects::nonNull)
         .filter(Vision::isUsingTwoTags)
-        .filter(Vision::zIsRight)
+        .filter(v -> zIsRight(v, VisionConstants.kMaxVertDisp))
         .filter(Vision::isOnField)
         .filter(Vision::maxDistanceIsInThreshold)
         .filter(Vision.isAmbiguityLess(0.25))
-        .filter(Vision::pitchIsInBounds)
-        .filter(Vision::rollIsInBounds)
+        .filter(v -> pitchIsInBounds(v, VisionConstants.kPitchBounds))
+        .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))
         .map(Vision::generatePoseEstimate)
         .forEach(
             dtUpdateEstimate); // updates drivetrain swerve pose estimator with vision measurement
@@ -127,7 +126,6 @@ public class Vision extends SubsystemBase {
   }
 
   /**
-   *
    * @param camToEstimator
    * @param results
    * @return
@@ -151,11 +149,7 @@ public class Vision extends SubsystemBase {
 
     final var ambiguity = latestResult.getBestTarget().getPoseAmbiguity();
     return Optional.of(
-        new EstimateTuple(
-            estimatedPose.get(), camToEstimator.photonCamera().getName(), ambiguity));
-
-
-
+        new EstimateTuple(estimatedPose.get(), camToEstimator.photonCamera().getName(), ambiguity));
   }
 
   private static Predicate<EstimateTuple> isAmbiguityLess(double maxAmbiguity) {
@@ -173,13 +167,15 @@ public class Vision extends SubsystemBase {
    * accurate readings
    */
   private static boolean maxDistanceIsInThreshold(EstimateTuple estimateAndInfo) {
-    Distance maxDistance = Meters.of(
-        estimateAndInfo.visionEstimate.targetsUsed.stream()
-            .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
-            .max()
-            .orElse(0.0));
+    Distance maxDistance =
+        Meters.of(
+            estimateAndInfo.visionEstimate.targetsUsed.stream()
+                .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
+                .max()
+                .orElse(0.0));
 
-    return RobotMath.measureWithinBounds(maxDistance, VisionConstants.kMinCamDistToTag, VisionConstants.kMaxCamDistToTag);
+    return RobotMath.measureWithinBounds(
+        maxDistance, VisionConstants.kMinCamDistToTag, VisionConstants.kMaxCamDistToTag);
   }
 
   /** Is the robot on the field based on its current pose */
@@ -187,8 +183,8 @@ public class Vision extends SubsystemBase {
     final var poseX = pose.getMeasureX();
     final var poseY = pose.getMeasureY();
 
-    return RobotMath.measureWithinBounds(poseX, Meters.zero(), VisionConstants.kFieldWidth) &&
-      RobotMath.measureWithinBounds(poseY, Meters.zero(), VisionConstants.kFieldHeight);
+    return RobotMath.measureWithinBounds(poseX, Meters.zero(), VisionConstants.kFieldWidth)
+        && RobotMath.measureWithinBounds(poseY, Meters.zero(), VisionConstants.kFieldHeight);
   }
 
   /**
@@ -200,7 +196,9 @@ public class Vision extends SubsystemBase {
     return isOnField(estTuple.visionEstimate.estimatedPose);
   }
 
-  /** Checks if robot pose estimate has a vertical displacement below specified threshold
+  /**
+   * Checks if robot pose estimate has a vertical displacement below specified threshold
+   *
    * @param estTuple the {@link EstimateTuple} to check.
    * @return true if less then threshold, false otherwise.
    */

@@ -13,7 +13,6 @@
 
 package frc.robot;
 
-
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
@@ -99,7 +98,7 @@ public final class Constants {
             new Rotation3d(0, kCameraPitch.in(Radians), 0));
     public static final Transform3d robotToCamTwo =
         new Transform3d(
-            new Translation3d(kCamChassisXOffset, -kCamChassisYOffset, KCamChassisZOffset),
+            new Translation3d(kCamChassisXOffset, kCamChassisYOffset.unaryMinus(), KCamChassisZOffset),
             new Rotation3d(0, kCameraPitch.in(Radians), 0));
 
     public static final Matrix<N3, N1> kMultiTagStdDevs =
