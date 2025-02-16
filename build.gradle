@@ -95,6 +95,8 @@ dependencies {
 
     def akitJson = new groovy.json.JsonSlurper().parseText(new File(projectDir.getAbsolutePath() + "/vendordeps/AdvantageKit.json").text)
     annotationProcessor "org.littletonrobotics.akit:akit-autolog:$akitJson.version"
+
+    implementation 'com.github.shueja:Monologue:v1.0.0-beta6'
 }
 
 test {
@@ -215,4 +217,8 @@ spotless {
         indentWithSpaces(2)
         endWithNewline()
     }
+}
+
+repositories {
+    maven { url 'https://jitpack.io' }
 }
