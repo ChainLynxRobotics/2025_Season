@@ -30,6 +30,8 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.units.measure.LinearVelocity;
+import edu.wpi.first.units.measure.Mass;
+import edu.wpi.first.units.measure.MomentOfInertia;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -41,8 +43,8 @@ public final class Constants {
       Mode.REAL; // RobotBase.isReal() ? Mode.REAL : Mode.SIM; robot thinks it's fake wut
 
   // Phisical values of the robot
-  public static final double ROBOT_MASS_KG = 74.088;
-  public static final double ROBOT_MOI = 6.883;
+  public static final Mass ROBOT_MASS_KG = Kilogram.of(74.088);
+  public static final MomentOfInertia ROBOT_MOI = KilogramSquareMeters.of(6.883);
   public static final double WHEEL_COF = 1.2;
 
   public static enum Mode {
@@ -98,7 +100,8 @@ public final class Constants {
             new Rotation3d(0, kCameraPitch.in(Radians), 0));
     public static final Transform3d robotToCamTwo =
         new Transform3d(
-            new Translation3d(kCamChassisXOffset, kCamChassisYOffset.unaryMinus(), KCamChassisZOffset),
+            new Translation3d(
+                kCamChassisXOffset, kCamChassisYOffset.unaryMinus(), KCamChassisZOffset),
             new Rotation3d(0, kCameraPitch.in(Radians), 0));
 
     public static final Matrix<N3, N1> kMultiTagStdDevs =

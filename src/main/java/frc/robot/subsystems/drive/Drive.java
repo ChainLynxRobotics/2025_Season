@@ -385,7 +385,7 @@ public class Drive extends SubsystemBase {
             Math.sqrt(
                 Math.pow(gyroInputs.xRotation.in(Radians), 2)
                     + Math.pow(gyroInputs.yRotation.in(Radians), 2)));
-    double fNormal = Constants.ROBOT_MASS_KG * 9.81 * Math.cos(tipAngle);
+    double fNormal = Constants.ROBOT_MASS_KG.in(Kilograms) * 9.81 * Math.cos(tipAngle);
     double tipMag = fNormal * Math.sin(tipAngle); // projection of normal force onto horizontal
     double angle =
         Math.atan2(
