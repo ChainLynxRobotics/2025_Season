@@ -50,7 +50,7 @@ public class Manipulator extends SubsystemBase implements Logged {
   }
 
   public Command setAngle(double setpoint) {
-    return this.run(
+    return this.runOnce(
         () -> {
           double ff = Math.cos(Rotations.of(pivotEncoder.getPosition()).in(Units.Radians)) * kFF;
           controller.setReference(
@@ -59,7 +59,11 @@ public class Manipulator extends SubsystemBase implements Logged {
   }
 
   public Command spinRollers() {
-    return this.run(() -> rollers.set(defaultRollerSpeed)).finallyDo(() -> rollers.set(0.0));
+    return this.runOnce(() -> rollers.set(defaultRollerSpeed));
+  }
+
+  public Command stopRollers() {
+    return this.runOnce(() -> rollers.set(0.0));
   }
 
   public boolean hasCoral() {
