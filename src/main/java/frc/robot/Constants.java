@@ -59,6 +59,8 @@ public final class Constants {
   }
 
   public static class DriveConstants {
+    // TODO verify actual chassis size
+    public static final Distance chassisSize = Meters.of(0.9);
     public static final LinearVelocity maxTranslationSpeed = MetersPerSecond.of(10);
     public static final AngularVelocity maxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
     public static final double DRIVE_DEADBAND = 0.05;
