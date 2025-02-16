@@ -21,6 +21,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -129,7 +131,9 @@ public class RobotContainer {
         "left",
         new Pose2d(
             new Translation2d(
-                VisionConstants.kFieldHeight.in(Units.Meters),
+                DriverStation.getAlliance().get() == Alliance.Blue
+                    ? VisionConstants.kFieldHeight.in(Units.Meters)
+                    : 0,
                 DriveConstants.chassisSize.in(Units.Meters) / 2),
             new Rotation2d()));
     startPoseLoc.addOption(
@@ -142,7 +146,11 @@ public class RobotContainer {
     startPoseLoc.addOption(
         "right",
         new Pose2d(
-            new Translation2d(0, DriveConstants.chassisSize.in(Units.Meters) / 2),
+            new Translation2d(
+                DriverStation.getAlliance().get() == Alliance.Blue
+                    ? 0
+                    : VisionConstants.kFieldHeight.in(Units.Meters),
+                DriveConstants.chassisSize.in(Units.Meters) / 2),
             new Rotation2d()));
     drive.setPose(startPoseLoc.getSelected());
   }
