@@ -21,7 +21,6 @@ import static edu.wpi.first.units.Units.RadiansPerSecond;
 
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
-
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.Matrix;
@@ -129,7 +128,7 @@ public final class Constants {
       public static final boolean inverted = false;
       public static final IdleMode idleMode = IdleMode.kBrake;
 
-      // TODO: factor to make full extension 1 
+      // TODO: factor to make full extension 1
       public static final double positionConvertionFactor = 1000;
 
       public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
