@@ -10,12 +10,12 @@ import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkClosedLoopController.ArbFFUnits;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -32,11 +32,11 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   private SparkMaxFaultChecker rollersChecker;
   private DigitalInput coralDetect;
 
-  public Manipulator() {
+  public Manipulator(SparkMax pivot, SparkMax rollers, DigitalInput linebreakSensor) {
     config = new SparkMaxConfig();
-    pivot = new SparkMax(PIVOT_ID, MotorType.kBrushless);
-    rollers = new SparkMax(ROLLER_ID, MotorType.kBrushless);
-    coralDetect = new DigitalInput(LINE_BREAK_PORT);
+    this.pivot = pivot;
+    this.rollers = rollers;
+    this.coralDetect = linebreakSensor;
     pivotEncoder = pivot.getAbsoluteEncoder();
     controller = pivot.getClosedLoopController();
     pivotChecker = new SparkMaxFaultChecker(pivot);
@@ -60,10 +60,14 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   public Command setAngle(double setpoint) {
     return this.runOnce(
         () -> {
-          double ff = Math.cos(Rotations.of(pivotEncoder.getPosition()).in(Units.Radians)) * kFF;
+          double ff = Math.cos(getEncoderPosition().in(Units.Radians)) * kFF;
           controller.setReference(
               setpoint, ControlType.kPosition, ClosedLoopSlot.kSlot0, ff, ArbFFUnits.kPercentOut);
         });
+  }
+
+  private Angle getEncoderPosition() {
+    return Rotations.of(pivotEncoder.getPosition());
   }
 
   public Command spinRollers() {

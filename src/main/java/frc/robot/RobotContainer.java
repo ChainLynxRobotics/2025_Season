@@ -14,12 +14,18 @@
 package frc.robot;
 
 import static edu.wpi.first.wpilibj2.command.Commands.*;
+import static frc.robot.Constants.ManipulatorConstants.LINE_BREAK_PORT;
+import static frc.robot.Constants.ManipulatorConstants.PIVOT_ID;
+import static frc.robot.Constants.ManipulatorConstants.ROLLER_ID;
 
 import com.pathplanner.lib.auto.AutoBuilder;
+import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkMax;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -102,7 +108,11 @@ public class RobotContainer implements Logged {
     }
 
     vision = new Vision(drive::updateEstimates);
-    manipulator = new Manipulator();
+    manipulator =
+        new Manipulator(
+            new SparkMax(PIVOT_ID, MotorType.kBrushless),
+            new SparkMax(ROLLER_ID, MotorType.kBrushless),
+            new DigitalInput(LINE_BREAK_PORT));
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
