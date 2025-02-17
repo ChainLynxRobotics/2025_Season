@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ClimberConstants;
 
-public class Climber extends SubsystemBase {
+public class Climber extends SubsystemBase implements AutoCloseable {
 
   private SparkMax motorController;
   private DigitalInput m_limSwitchUpper;
@@ -26,6 +26,13 @@ public class Climber extends SubsystemBase {
   public void periodic() {
     SmartDashboard.putBoolean("lim motor up?", m_limSwitchUpper.get());
     SmartDashboard.putBoolean("lim motor low?", m_limSwitchLower.get());
+  }
+
+  @Override
+  public void close() {
+    motorController.close();
+    m_limSwitchUpper.close();
+    m_limSwitchLower.close();
   }
 
   public void setMotor(boolean reverse) {
