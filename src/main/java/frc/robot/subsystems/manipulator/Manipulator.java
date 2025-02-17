@@ -19,14 +19,17 @@ import edu.wpi.first.units.Units;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.util.SparkMaxFaultChecker;
 import monologue.Logged;
 
-public class Manipulator extends SubsystemBase implements Logged {
+public class Manipulator extends SubsystemBase implements Logged, AutoCloseable {
   private SparkMaxConfig config;
   private SparkMax pivot;
   private SparkMax rollers;
   private SparkAbsoluteEncoder pivotEncoder;
   private SparkClosedLoopController controller;
+  private SparkMaxFaultChecker pivotChecker;
+  private SparkMaxFaultChecker rollersChecker;
   private DigitalInput coralDetect;
 
   public Manipulator() {
@@ -36,6 +39,8 @@ public class Manipulator extends SubsystemBase implements Logged {
     coralDetect = new DigitalInput(LINE_BREAK_PORT);
     pivotEncoder = pivot.getAbsoluteEncoder();
     controller = pivot.getClosedLoopController();
+    pivotChecker = new SparkMaxFaultChecker(pivot);
+    rollersChecker = new SparkMaxFaultChecker(rollers);
 
     config.idleMode(IdleMode.kBrake);
     config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
@@ -45,8 +50,11 @@ public class Manipulator extends SubsystemBase implements Logged {
   @Override
   public void periodic() {
     this.log("manipulator/angle", pivotEncoder.getPosition());
-    this.log("manipulator/rollers", rollers.get() != 0 ? true : false);
+    this.log("manipulator/rollers", rollers.get());
     this.log("manipulator/hasCoral", hasCoral());
+
+    pivotChecker.checkFaults();
+    rollersChecker.checkFaults();
   }
 
   public Command setAngle(double setpoint) {
@@ -68,5 +76,12 @@ public class Manipulator extends SubsystemBase implements Logged {
 
   public boolean hasCoral() {
     return coralDetect.get();
+  }
+
+  @Override
+  public void close() throws Exception {
+    pivot.close();
+    rollers.close();
+    coralDetect.close();
   }
 }

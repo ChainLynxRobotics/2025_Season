@@ -87,18 +87,18 @@ public class Fault {
   }
 
   /**
-   * @param commponentName the name of the commponent that has the fault
+   * @param componentName the name of the commponent that has the fault
    */
-  public void sendNotification(String commponentName) {
-    FaultInfo faultInfo = getFaultString(commponentName);
+  public void sendNotification(String componentName) {
+    FaultInfo faultInfo = getFaultString(componentName);
     Elastic.sendNotification(new Notification(level, faultInfo.header, faultInfo.payload));
   }
   /**
-   * @param commponentName the name of the commponent that has the fault
+   * @param componentName the name of the commponent that has the fault
    * @param logEntry the log to add the fault to
    */
-  public void logFault(String commponentName, StringLogEntry logEntry) {
-    FaultInfo faultString = getFaultString(commponentName);
+  public void logFault(String componentName, StringLogEntry logEntry) {
+    FaultInfo faultString = getFaultString(componentName);
     logEntry.append(faultString.header + ". " + faultString.payload);
   }
 }
