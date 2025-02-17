@@ -16,7 +16,7 @@ import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.Config;
 import com.revrobotics.spark.SparkAbsoluteEncoder;
 
-public class Elevator extends SubsystemBase {
+public class Elevator extends SubsystemBase implements AutoCloseable {
   private SparkMax sparkMaxLeader = new SparkMax(ElevatorConstants.sparkMaxCANId, MotorType.kBrushless);
   private SparkMax sparkMaxFollower = new SparkMax(ElevatorConstants.sparkMaxFollowerCANId, MotorType.kBrushless);
   private SparkAbsoluteEncoder encoder = sparkMaxLeader.getAbsoluteEncoder();
@@ -83,6 +83,12 @@ public class Elevator extends SubsystemBase {
   public void periodic() {
     pidControllerLeader.setReference(
     (setpoint.in(Meters) / ElevatorConstants.maxHight.in(Meters)), ControlType.kPosition);
+  }
+
+  @Override
+  public void close() {
+    sparkMaxFollower.close();
+    sparkMaxLeader.close();
   }
 
   public Distance getElevatorHight() {
