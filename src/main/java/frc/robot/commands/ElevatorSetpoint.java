@@ -10,8 +10,8 @@ import frc.robot.subsystems.*;
 public class ElevatorSetpoint extends Command {
   @SuppressWarnings({"PMD.UnusedPrivateField", "PMD.SingularField"})
   private final Elevator m_subsystem;
-  private final int stage;
 
+  private final int stage;
 
   public ElevatorSetpoint(Elevator subsystem, int stage) {
     m_subsystem = subsystem;

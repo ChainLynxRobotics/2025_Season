@@ -2,6 +2,7 @@ package frc.robot.subsystems;
 
 import static edu.wpi.first.units.Units.Meters;
 
+import com.revrobotics.spark.SparkAbsoluteEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
@@ -14,13 +15,13 @@ import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.ElevatorConstants;
 import frc.robot.Constants.ElevatorConstants.Config;
-import com.revrobotics.spark.SparkAbsoluteEncoder;
 
 public class Elevator extends SubsystemBase implements AutoCloseable {
-  private SparkMax sparkMaxLeader = new SparkMax(ElevatorConstants.sparkMaxCANId, MotorType.kBrushless);
-  private SparkMax sparkMaxFollower = new SparkMax(ElevatorConstants.sparkMaxFollowerCANId, MotorType.kBrushless);
+  private SparkMax sparkMaxLeader =
+      new SparkMax(ElevatorConstants.sparkMaxCANId, MotorType.kBrushless);
+  private SparkMax sparkMaxFollower =
+      new SparkMax(ElevatorConstants.sparkMaxFollowerCANId, MotorType.kBrushless);
   private SparkAbsoluteEncoder encoder = sparkMaxLeader.getAbsoluteEncoder();
-
 
   private Distance setpoint = Meters.of(0);
 
@@ -34,11 +35,11 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
     globalConfig.idleMode(Config.idleMode);
 
-    globalConfig.
-      encoder.positionConversionFactor(Config.positionConvertionFactor);
+    globalConfig.encoder.positionConversionFactor(Config.positionConvertionFactor);
 
-    globalConfig.
-      closedLoop.feedbackSensor(Config.feedbackSensor)
+    globalConfig
+        .closedLoop
+        .feedbackSensor(Config.feedbackSensor)
         .pidf(Config.pidP, Config.pidI, Config.pidD, Config.feedForward)
         .iZone(Config.pidIZone);
 
@@ -46,22 +47,22 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
 
     followerConfig.apply(globalConfig).follow(sparkMaxLeader);
 
-
     encoderConfig
-      //.inverted(false) uhh?
-      .positionConversionFactor(Config.positionConvertionFactor);
+        // .inverted(false) uhh?
+        .positionConversionFactor(Config.positionConvertionFactor);
 
     encoderConfig.setSparkMaxDataPortConfig();
 
-    
-    sparkMaxLeader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    sparkMaxFollower.configure(followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    sparkMaxLeader.configure(
+        leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    sparkMaxFollower.configure(
+        followerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     pidControllerLeader = sparkMaxLeader.getClosedLoopController();
   }
 
   public void setSetPoint(int stage) {
-    switch(stage) {
+    switch (stage) {
       case 1:
         this.setpoint = ElevatorConstants.stageOneSetpoint;
         break;
@@ -82,7 +83,7 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   @Override
   public void periodic() {
     pidControllerLeader.setReference(
-    (setpoint.in(Meters) / ElevatorConstants.maxHight.in(Meters)), ControlType.kPosition);
+        (setpoint.in(Meters) / ElevatorConstants.maxHight.in(Meters)), ControlType.kPosition);
   }
 
   @Override
