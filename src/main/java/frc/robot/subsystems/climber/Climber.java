@@ -53,9 +53,6 @@ public class Climber extends SubsystemBase implements AutoCloseable {
   }
 
   public boolean isLimitSwitch() {
-    if (m_limSwitchLower.get() || m_limSwitchUpper.get()) {
-      return true;
-    }
-    return false;
+    return m_limSwitchLower.get() || m_limSwitchUpper.get();
   }
 }
