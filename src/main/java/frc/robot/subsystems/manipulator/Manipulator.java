@@ -19,6 +19,7 @@ import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.ManipulatorConstants;
 import frc.robot.util.SparkMaxFaultChecker;
 import monologue.Logged;
 
@@ -58,7 +59,7 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
   }
 
   public Command setAngle(double setpoint) {
-    return this.runOnce(
+    return this.run(
         () -> {
           double ff = Math.cos(getEncoderPosition().in(Units.Radians)) * kFF;
           controller.setReference(
@@ -68,6 +69,12 @@ public class Manipulator extends SubsystemBase implements Logged, AutoCloseable 
 
   private Angle getEncoderPosition() {
     return Rotations.of(pivotEncoder.getPosition());
+  }
+
+  public boolean atAngle(boolean scoring) {
+    double loc = scoring ? ManipulatorConstants.fullRoll.in(Rotations) : 0.0;
+    return Math.abs(getEncoderPosition().in(Rotations) - loc)
+        < ManipulatorConstants.rotTolerance.in(Rotations);
   }
 
   public Command spinRollers() {

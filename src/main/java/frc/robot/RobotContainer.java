@@ -116,7 +116,6 @@ public class RobotContainer implements Logged {
 
     // Set up auto routines
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
-
     // Set up SysId routines
     autoChooser.addOption(
         "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
@@ -182,9 +181,11 @@ public class RobotContainer implements Logged {
                 .andThen(
                     sequence(
                         manipulator.stopRollers(),
-                        manipulator.setAngle(ManipulatorConstants.fullRoll.in(Units.Rotations)))));
+                        manipulator
+                            .setAngle(ManipulatorConstants.fullRoll.in(Units.Rotations))
+                            .until(() -> manipulator.atAngle(true)))));
     // reset pivot
-    opController.b().onTrue(manipulator.setAngle(0.0));
+    opController.b().onTrue(manipulator.setAngle(0.0).until(() -> manipulator.atAngle(false)));
   }
 
   public void driveTipCorrect() {
