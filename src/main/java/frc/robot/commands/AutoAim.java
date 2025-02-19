@@ -76,13 +76,13 @@ public class AutoAim extends Command {
                 targetPose.getRotation().getX()));
 
     Angle curRot = curPose.getRotation().getMeasure();
-    angErr = RobotMath.relativeAbs(curRot.minus(targetYaw), Radians.zero());
+    angErr = RobotMath.Abs(curRot.minus(targetYaw));
     turn =
         RadiansPerSecond.of(
             DriveConstants.rotationController.calculate(curRot.in(Radians), targetYaw.in(Radians))
                 * DriveConstants.maxRotVelocity.in(RadiansPerSecond));
     transErr =
-        RobotMath.relativeAbs(targetRange.minus(VisionConstants.tagDistSetpoint), Meters.zero());
+        RobotMath.Abs(targetRange.minus(VisionConstants.tagDistSetpoint));
     forward =
         MetersPerSecond.of(
             DriveConstants.translationController.calculate(
