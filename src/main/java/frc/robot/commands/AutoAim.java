@@ -81,8 +81,7 @@ public class AutoAim extends Command {
         RadiansPerSecond.of(
             DriveConstants.rotationController.calculate(curRot.in(Radians), targetYaw.in(Radians))
                 * DriveConstants.maxRotVelocity.in(RadiansPerSecond));
-    transErr =
-        RobotMath.Abs(targetRange.minus(VisionConstants.tagDistSetpoint));
+    transErr = RobotMath.Abs(targetRange.minus(VisionConstants.tagDistSetpoint));
     forward =
         MetersPerSecond.of(
             DriveConstants.translationController.calculate(
