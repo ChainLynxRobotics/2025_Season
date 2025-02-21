@@ -18,12 +18,9 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
 import com.pathplanner.lib.commands.PathPlannerAuto;
-import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
-
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -42,6 +39,7 @@ import frc.robot.subsystems.drive.ModuleIO;
 import frc.robot.subsystems.drive.ModuleIOSim;
 import frc.robot.subsystems.drive.ModuleIOTalonFX;
 import frc.robot.subsystems.vision.Vision;
+import java.lang.Runnable;
 import org.littletonrobotics.junction.networktables.LoggedDashboardChooser;
 
 /**
@@ -126,6 +124,7 @@ public class RobotContainer {
 
   private void configureAutos() {
     NamedCommands.registerCommand("test", print("test"));
+    NamedCommands.registerCommand("Score Coral", run(ScoreCoral, m_manipulator, ));
     autoChooser.addOption("test drive", AutoBuilder.buildAuto("Example Auto"));
   }
 
