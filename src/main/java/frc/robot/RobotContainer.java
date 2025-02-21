@@ -17,9 +17,13 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
+import com.pathplanner.lib.trajectory.PathPlannerTrajectory;
+
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.trajectory.Trajectory;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -123,6 +127,17 @@ public class RobotContainer {
   private void configureAutos() {
     NamedCommands.registerCommand("test", print("test"));
     autoChooser.addOption("test drive", AutoBuilder.buildAuto("Example Auto"));
+  }
+
+  public void resetPose() {
+    drive.resetGyro();
+    Command autoCommand = autoChooser.get();
+    if (autoCommand instanceof PathPlannerAuto auto) {
+      Pose2d startPose = auto.getStartingPose();
+      drive.setPose(startPose);
+    } else {
+      System.out.println("No PathPlanner auto selected");
+    }
   }
 
   /**

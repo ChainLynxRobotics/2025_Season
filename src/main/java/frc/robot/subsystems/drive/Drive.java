@@ -131,7 +131,7 @@ public class Drive extends SubsystemBase {
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
-            new PIDConstants(0.1, 0.0, 0.0), new PIDConstants(0.1, 0.0, 0.0)),
+            new PIDConstants(0.5, 0.0, 0.0), new PIDConstants(0.5, 0.0, 0.0)),
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
@@ -338,6 +338,10 @@ public class Drive extends SubsystemBase {
   /** Resets the current odometry pose. */
   public void setPose(Pose2d pose) {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
+  }
+
+  public void resetGyro() {
+    gyroIO.resetGyro();
   }
 
   public void updateEstimates(PoseEstimate poseEstimate) {
