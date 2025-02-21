@@ -34,6 +34,7 @@ import edu.wpi.first.units.measure.AngularVelocity;
 import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.units.measure.Force;
 import edu.wpi.first.units.measure.LinearVelocity;
+import frc.robot.generated.TunerConstants;
 
 /**
  * This class defines the runtime mode used by AdvantageKit. The mode is always "real" when running
@@ -65,8 +66,16 @@ public final class Constants {
     public static final AngularVelocity maxRotVelocity = RadiansPerSecond.of(4 * Math.PI);
     public static final double DRIVE_DEADBAND = 0.05;
     public static final Distance TAG_DISTANCE = Meters.of(0.3);
-    public static final PIDController translationController = new PIDController(0.5, 0.001, 0);
-    public static final PIDController rotationController = new PIDController(0.03, 0.01, 0);
+    public static final PIDController translationController =
+        new PIDController(
+            TunerConstants.driveGains.kP,
+            TunerConstants.driveGains.kI,
+            TunerConstants.driveGains.kD);
+    public static final PIDController rotationController =
+        new PIDController(
+            TunerConstants.steerGains.kP,
+            TunerConstants.steerGains.kI,
+            TunerConstants.steerGains.kD);
 
     public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
     public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);

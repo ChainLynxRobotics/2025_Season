@@ -17,6 +17,7 @@ import static edu.wpi.first.wpilibj2.command.Commands.*;
 
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.commands.PathPlannerAuto;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -25,7 +26,6 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.commands.AutoAim;
 import frc.robot.commands.DriveCommands;
@@ -100,7 +100,7 @@ public class RobotContainer {
     autoChooser = new LoggedDashboardChooser<>("Auto Choices", AutoBuilder.buildAutoChooser());
 
     // Set up SysId routines
-    autoChooser.addOption(
+    /*autoChooser.addOption(
         "Drive Wheel Radius Characterization", DriveCommands.wheelRadiusCharacterization(drive));
     autoChooser.addOption(
         "Drive Simple FF Characterization", DriveCommands.feedforwardCharacterization(drive));
@@ -113,7 +113,7 @@ public class RobotContainer {
     autoChooser.addOption(
         "Drive SysId (Dynamic Forward)", drive.sysIdDynamic(SysIdRoutine.Direction.kForward));
     autoChooser.addOption(
-        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));
+        "Drive SysId (Dynamic Reverse)", drive.sysIdDynamic(SysIdRoutine.Direction.kReverse));*/
 
     configureAutos();
     // Configure the button bindings
@@ -122,7 +122,19 @@ public class RobotContainer {
 
   private void configureAutos() {
     NamedCommands.registerCommand("test", print("test"));
-    autoChooser.addOption("test drive", AutoBuilder.buildAuto("Example Auto"));
+    autoChooser.addDefaultOption("print command", print("test"));
+    autoChooser.addOption("test drive", AutoBuilder.buildAuto("testauto"));
+  }
+
+  public void resetPose() {
+    drive.resetGyro();
+    Command autoCommand = autoChooser.get();
+    if (autoCommand instanceof PathPlannerAuto auto) {
+      Pose2d startPose = auto.getStartingPose();
+      drive.setPose(startPose);
+    } else {
+      System.out.println("No PathPlanner auto selected");
+    }
   }
 
   /**

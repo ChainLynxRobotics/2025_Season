@@ -26,6 +26,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.subsystems.drive.Drive;
@@ -216,6 +217,8 @@ public class DriveCommands {
 
                   NumberFormat formatter = new DecimalFormat("#0.00000");
                   System.out.println("********** Drive FF Characterization Results **********");
+                  SmartDashboard.putNumber("kV", kV);
+                  SmartDashboard.putNumber("kS", kS);
                   System.out.println("\tkS: " + formatter.format(kS));
                   System.out.println("\tkV: " + formatter.format(kV));
                 }));

@@ -7,7 +7,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Example Path"
+            "pathName": "to coral"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "back out"
           }
         },
         {

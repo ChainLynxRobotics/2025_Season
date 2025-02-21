@@ -95,4 +95,9 @@ public class GyroIOPigeon2 implements GyroIO {
   public void updateFault() {
     pigeonFaults.updateFaults();
   }
+
+  @Override
+  public void resetGyro() {
+    pigeon.reset();
+  }
 }
