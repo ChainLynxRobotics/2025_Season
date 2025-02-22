@@ -27,11 +27,11 @@ public final class RobotMath {
 
   /**
    * @param measure measure to get the absolute value of.
-   * @param relitiveZero the zero point of the absolute value.
-   * @return measure if mesure > relitiveZero, meausure fliped aroud relitiveZero otherwise.
+   * @param other measuere to get dist to.
+   * @return abs of measuere1 - measuere2.
    */
-  public static <U extends Unit, M extends Measure<U>> M dist(M measure, M relitiveZero) {
-    return abs((M) measure.minus(relitiveZero));
+  public static <U extends Unit, M extends Measure<U>> M dist(M measure1, M measure2) {
+    return abs((M) measure1.minus(measure2));
   }
 
   /**
