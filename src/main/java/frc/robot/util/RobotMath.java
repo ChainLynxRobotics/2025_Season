@@ -30,15 +30,15 @@ public final class RobotMath {
    * @param relitiveZero the zero point of the absolute value.
    * @return measure if mesure > relitiveZero, meausure fliped aroud relitiveZero otherwise.
    */
-  public static <U extends Unit, M extends Measure<U>> M relativeAbs(M measure, M relitiveZero) {
-    return measure.gt(relitiveZero) ? measure : (M) relitiveZero.times(2).minus(measure);
+  public static <U extends Unit, M extends Measure<U>> M dist(M measure, M relitiveZero) {
+    return abs((M) measure.minus(relitiveZero));
   }
 
   /**
    * @param measure measure to get the absolute value of.
    * @return the absulute value of measure with the zero point of the base unit for that type.
    */
-  public static <U extends Unit, M extends Measure<U>> M Abs(M measure) {
-    return relativeAbs(measure, (M) measure.baseUnit().zero());
+  public static <U extends Unit, M extends Measure<U>> M abs(M measure) {
+    return measure.gt((M) measure.baseUnit().zero()) ? measure : (M) measure.unaryMinus();
   }
 }
