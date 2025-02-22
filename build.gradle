@@ -69,6 +69,14 @@ task(replayWatch, type: JavaExec) {
     classpath = sourceSets.main.runtimeClasspath
 }
 
+test {
+
+    useJUnitPlatform()
+
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+
+}
+
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
 // Also defines JUnit 4.
 dependencies {
