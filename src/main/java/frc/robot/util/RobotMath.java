@@ -56,7 +56,7 @@ public final class RobotMath {
 
   /**
    * @param measure measure to get the absolute value of.
-   * @return the absulute value of measure with the zero point of the base unit for that type.
+   * @return the absulute value of measure with the zero point of the unit for that type.
    */
   @SuppressWarnings("unchecked")
   public static <U extends Unit, M extends Measure<U>> M abs(M measure) {
@@ -64,7 +64,14 @@ public final class RobotMath {
       // NaN's propagate
       return (M) measure.baseUnit().of(Double.NaN);
     }
-    return measure.gt((M) measure.baseUnit().zero()) ? measure : (M) measure.unaryMinus();
+    System.out.println(measure + ": " + measure.gte((M) measure.unit().zero()));
+    System.out.println(
+        measure.gte((M) measure.unit().zero())
+            ? measure
+            : (M) ((M) measure.unit().zero()).minus(measure));
+    return measure.gte((M) measure.unit().zero())
+        ? measure
+        : (M) ((M) measure.unit().zero()).minus(measure);
   }
 
   public static <U extends Unit> boolean isWithinTolerance(
@@ -83,7 +90,7 @@ public final class RobotMath {
 
   @SuppressWarnings("unchecked")
   public static <U extends Unit> boolean approxZero(Measure<U> measure) {
-    return approxZero(measure, (Measure<U>) measure.baseUnit().of(1e-6));
+    return approxZero(measure, (Measure<U>) measure.unit().of(1e-6));
   }
 
   public static <U extends Unit> boolean approxZero(Measure<U> measure, Measure<U> tol) {
