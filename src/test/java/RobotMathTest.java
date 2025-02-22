@@ -1,5 +1,6 @@
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.util.RobotMath.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -116,5 +117,33 @@ class RobotMathTest {
     assertTrue(approxZero(Celsius.of(1), Celsius.of(1)));
     // WPILib bug with subtracting tempreture
     // assertFalse(approxZero(Celsius.of(Kelvin.zero().in(Celsius)), Celsius.of(1)));
+  }
+  
+  @Test
+  void testIsMeasureNaN() {
+    assertTrue(isMeasureNaN(Meters.of(Double.NaN)));
+    assertTrue(isMeasureNaN(Inches.of(Double.NaN)));
+    assertFalse(isMeasureNaN(Meters.of(0)));
+    assertFalse(isMeasureNaN(Inches.of(Double.POSITIVE_INFINITY)));
+    assertFalse(isMeasureNaN(Inches.of(Double.NEGATIVE_INFINITY)));
+  }
+
+  @Test
+  void testDist() {
+    assertEquals(Meters.of(3), dist(Meters.of(1), Meters.of(4)));
+    assertEquals(Meters.of(3), dist(Meters.of(4), Meters.of(1)));
+    assertEquals(Meters.of(0), dist(Meters.of(-5), Meters.of(-5)));
+    assertTrue(isMeasureNaN(dist(Meters.of(Double.NaN), Meters.of(1))));
+    assertTrue(isMeasureNaN(dist(Meters.of(1), Meters.of(Double.NaN))));
+    assertTrue(isMeasureNaN(dist(Meters.of(Double.NaN), Meters.of(Double.NaN))));
+    // same testing, but with inches
+    assertEquals(Inches.of(3), dist(Inches.of(1), Inches.of(4)));
+    assertEquals(Inches.of(3), dist(Inches.of(4), Inches.of(1)));
+    assertEquals(Inches.of(0), dist(Inches.of(-5), Inches.of(-5)));
+    assertTrue(isMeasureNaN(dist(Inches.of(Double.NaN), Inches.of(1))));
+    assertTrue(isMeasureNaN(dist(Inches.of(1), Inches.of(Double.NaN))));
+    assertTrue(isMeasureNaN(dist(Inches.of(Double.NaN), Inches.of(Double.NaN))));
+    // testing mixed units
+    assertEquals(Inches.of(11), dist(Feet.of(1), Inches.of(1)));
   }
 }
