@@ -10,34 +10,26 @@ import frc.robot.Constants.LightConstants.LightsState;
 public class Lights extends SubsystemBase {
   private AddressableLED ledStrip;
   private AddressableLEDBuffer ledBuffer;
-  private LightsState prevState;
-  private LightsState curState;
+  private LightsState state = LightsState.STOPPED;
 
   public Lights() {
     this.ledStrip = new AddressableLED(LightConstants.pwmPort);
     this.ledBuffer = new AddressableLEDBuffer(LightConstants.numLeds);
-    this.prevState = LightsState.STOPPED;
-    this.curState = LightsState.IDLE;
 
     ledStrip.setLength(ledBuffer.getLength());
     ledStrip.setData(ledBuffer);
     ledStrip.start();
+
+    updateState(state);
   }
 
   @Override
-  public void periodic() {
-    if (curState != prevState) {
-      setLedState();
-      prevState = curState;
-    }
-  }
-
-  public void setLedState() {
-    LEDPattern pattern = LightConstants.ledMap.get(curState);
-    pattern.applyTo(ledBuffer);
-  }
+  public void periodic() {}
 
   public void updateState(LightsState state) {
-    this.curState = state;
+    this.state = state;
+
+    LEDPattern pattern = LightConstants.ledMap.get(state);
+    pattern.applyTo(ledBuffer);
   }
 }
