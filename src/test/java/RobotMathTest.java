@@ -1,8 +1,8 @@
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.util.RobotMath.*;
-
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.Test;
 
 class RobotMathTest {
@@ -60,5 +60,46 @@ class RobotMathTest {
     assertFalse(measureWithinBounds(Meters.of(0), Meters.of(-1), Meters.of(Double.NaN)));
     assertFalse(
         measureWithinBounds(Meters.of(Double.NaN), Meters.of(Double.NaN), Meters.of(Double.NaN)));
+  }
+
+  @Test
+  void testApproxZero() {
+    assertTrue(approxZero(Meters.of(0)));
+    assertFalse(approxZero(Meters.of(1)));
+    assertFalse(approxZero(Meters.of(-1)));
+    assertFalse(approxZero(Meters.of(Double.POSITIVE_INFINITY)));
+    assertFalse(approxZero(Meters.of(Double.NEGATIVE_INFINITY)));
+    assertTrue(approxZero(Meters.of(1e-6)));
+    assertTrue(approxZero(Meters.of(-1e-6)));
+    assertFalse(approxZero(Meters.of(2e-6)));
+    assertFalse(approxZero(Meters.of(-2e-6)));
+    assertTrue(approxZero(Meters.of(1e-7)));
+    assertTrue(approxZero(Meters.of(-1e-7)));
+    assertTrue(approxZero(Meters.of(2e-7)));
+    assertTrue(approxZero(Meters.of(-2e-7)));
+    assertFalse(approxZero(Meters.of(Double.NaN)));
+    assertFalse(approxZero(Meters.of(-Double.NaN)));
+    assertTrue(approxZero(Inches.of(1e-8)));
+    assertTrue(approxZero(Inches.of(-1e-8)));
+    assertTrue(approxZero(Inches.of(0)));
+    assertFalse(approxZero(Inches.of(Double.POSITIVE_INFINITY)));
+    assertFalse(approxZero(Inches.of(Double.NEGATIVE_INFINITY)));
+
+    assertTrue(approxZero(Meters.of(0), Meters.of(1)));
+    assertTrue(approxZero(Meters.of(1), Meters.of(1)));
+    assertTrue(approxZero(Meters.of(-1), Meters.of(1)));
+    assertFalse(approxZero(Meters.of(Double.POSITIVE_INFINITY), Meters.of(1)));
+    assertFalse(approxZero(Meters.of(Double.NEGATIVE_INFINITY), Meters.of(1)));
+    assertTrue(approxZero(Meters.of(1e-6), Meters.of(1)));
+    assertTrue(approxZero(Meters.of(-1e-6), Meters.of(1)));
+    assertTrue(approxZero(Meters.of(2e-6), Meters.of(1)));
+    assertTrue(approxZero(Meters.of(-2e-6), Meters.of(1)));
+    assertFalse(approxZero(Meters.of(Double.NaN), Meters.of(1)));
+    assertFalse(approxZero(Meters.of(-Double.NaN), Meters.of(1)));
+    assertTrue(approxZero(Inches.of(1e-8), Meters.of(1)));
+    assertTrue(approxZero(Inches.of(-1e-8), Meters.of(1)));
+    assertTrue(approxZero(Inches.of(0), Meters.of(1)));
+    assertFalse(approxZero(Inches.of(Double.POSITIVE_INFINITY), Meters.of(1)));
+    assertFalse(approxZero(Inches.of(Double.NEGATIVE_INFINITY), Meters.of(1)));
   }
 }

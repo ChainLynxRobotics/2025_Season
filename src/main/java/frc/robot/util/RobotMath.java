@@ -11,12 +11,12 @@ public final class RobotMath {
    */
   public static <U extends Unit> boolean measureWithinBounds(
       Measure<U> measure, Measure<U> bounds) {
-        if(Double.isNaN(measure.baseUnitMagnitude())){
-          return false;
-        }
-        if(Double.isNaN(bounds.baseUnitMagnitude())){
-          return false;
-        }
+    if (Double.isNaN(measure.baseUnitMagnitude())) {
+      return false;
+    }
+    if (Double.isNaN(bounds.baseUnitMagnitude())) {
+      return false;
+    }
     return measure.lt(bounds) && measure.gt(bounds.unaryMinus());
   }
 
@@ -28,13 +28,13 @@ public final class RobotMath {
    */
   public static <U extends Unit> boolean measureWithinBounds(
       Measure<U> measure, Measure<U> lower, Measure<U> upper) {
-    if(Double.isNaN(measure.baseUnitMagnitude())){
+    if (Double.isNaN(measure.baseUnitMagnitude())) {
       return false;
     }
-    if(Double.isNaN(lower.baseUnitMagnitude())){
+    if (Double.isNaN(lower.baseUnitMagnitude())) {
       return false;
     }
-    if(Double.isNaN(upper.baseUnitMagnitude())){
+    if (Double.isNaN(upper.baseUnitMagnitude())) {
       return false;
     }
     return measure.lt(upper) && measure.gt(lower);
@@ -47,7 +47,7 @@ public final class RobotMath {
    */
   @SuppressWarnings("unchecked")
   public static <U extends Unit, M extends Measure<U>> M dist(M measure1, M measure2) {
-    if(Double.isNaN(measure1.baseUnitMagnitude())){
+    if (Double.isNaN(measure1.baseUnitMagnitude())) {
       // NaN's propagate
       return (M) measure1.baseUnit().of(Double.NaN);
     }
@@ -60,30 +60,36 @@ public final class RobotMath {
    */
   @SuppressWarnings("unchecked")
   public static <U extends Unit, M extends Measure<U>> M abs(M measure) {
-    if(Double.isNaN(measure.baseUnitMagnitude())){
+    if (Double.isNaN(measure.baseUnitMagnitude())) {
       // NaN's propagate
       return (M) measure.baseUnit().of(Double.NaN);
     }
     return measure.gt((M) measure.baseUnit().zero()) ? measure : (M) measure.unaryMinus();
   }
 
-  public static <U extends Unit> boolean isWithinTolerance(Measure<U> measure1, Measure<U> measure2, Measure<U> tol) {
-    if(Double.isNaN(measure1.baseUnitMagnitude())){
+  public static <U extends Unit> boolean isWithinTolerance(
+      Measure<U> measure1, Measure<U> measure2, Measure<U> tol) {
+    if (Double.isNaN(measure1.baseUnitMagnitude())) {
       return false;
     }
-    if(Double.isNaN(measure2.baseUnitMagnitude())){
+    if (Double.isNaN(measure2.baseUnitMagnitude())) {
       return false;
     }
-    if(Double.isNaN(tol.baseUnitMagnitude())){
+    if (Double.isNaN(tol.baseUnitMagnitude())) {
       return false;
     }
     return dist(measure1, measure2).lte(tol);
   }
+
   @SuppressWarnings("unchecked")
   public static <U extends Unit> boolean approxZero(Measure<U> measure) {
-    if(Double.isNaN(measure.baseUnitMagnitude())){
+    return approxZero(measure, (Measure<U>) measure.baseUnit().of(1e-6));
+  }
+
+  public static <U extends Unit> boolean approxZero(Measure<U> measure, Measure<U> tol) {
+    if (Double.isNaN(measure.baseUnitMagnitude())) {
       return false;
     }
-    return abs(measure).lte((Measure<U>) measure.baseUnit().of(1e-6));
+    return abs(measure).lte(tol);
   }
 }
