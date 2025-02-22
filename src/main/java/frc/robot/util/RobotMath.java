@@ -87,7 +87,7 @@ public final class RobotMath {
   }
 
   public static <U extends Unit> boolean approxZero(Measure<U> measure, Measure<U> tol) {
-    if (Double.isNaN(measure.baseUnitMagnitude())) {
+    if (Double.isNaN(measure.in(measure.unit()))) {
       return false;
     }
     return abs(measure).lte(tol);
