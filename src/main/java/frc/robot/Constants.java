@@ -116,7 +116,7 @@ public final class Constants {
     // set actual value later
     public static final int sparkMaxCANId = 0;
     public static final int sparkMaxFollowerCANId = 1;
-    public static final Distance maxHight = Meters.of(1);
+    public static final Distance maxHeight = Meters.of(1);
     public static final Distance stageOneSetpoint = Meters.of(0);
     public static final Distance stageTwoSetpoint = Meters.of(0);
     public static final Distance stageThreeSetpoint = Meters.of(0);
@@ -128,14 +128,13 @@ public final class Constants {
       public static final boolean inverted = false;
       public static final IdleMode idleMode = IdleMode.kBrake;
 
-      // TODO: factor to make full extension 1
-      public static final double positionConvertionFactor = 1000;
+      // TODO: factor to make full extension 1 (1 / num rotations per full extension)
+      public static final double positionConvertionFactor = 1 / 20;
 
       public static final FeedbackSensor feedbackSensor = FeedbackSensor.kAbsoluteEncoder;
-      public static final double pidP = 1;
+      public static final double pidP = 0.8;
       public static final double pidI = 0;
-      public static final double pidD = 0.5;
-      public static final double pidIZone = 0.05;
+      public static final double pidD = 0;
       public static final double feedForward = 0.02;
     }
   }
