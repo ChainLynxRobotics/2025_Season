@@ -1,8 +1,8 @@
 import static edu.wpi.first.units.Units.*;
 import static frc.robot.util.RobotMath.*;
 
-import org.junit.jupiter.api.Assertions.assertFalse;
-import org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import org.junit.jupiter.api.Test;
 
 class RobotMathTest {
