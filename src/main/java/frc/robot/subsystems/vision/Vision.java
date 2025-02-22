@@ -24,7 +24,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public class Vision extends SubsystemBase implements AutoCloseable{
+public class Vision extends SubsystemBase implements AutoCloseable {
 
   /** static class wrapping a pose estimate with standard derivations for position and rotation */
   public static record PoseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
@@ -237,5 +237,4 @@ public class Vision extends SubsystemBase implements AutoCloseable{
     aprilCamOne.close();
     aprilCamTwo.close();
   }
-  
 }
