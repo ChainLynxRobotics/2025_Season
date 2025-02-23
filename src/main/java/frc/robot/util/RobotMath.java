@@ -95,7 +95,6 @@ public final class RobotMath {
     return abs(measure).lte(tol);
   }
 
-  @SuppressWarnings("unchecked")
   public static <U extends Unit> boolean isMeasureNaN(Measure<U> measure) {
     return Double.isNaN(measure.baseUnitMagnitude());
   }
