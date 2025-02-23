@@ -111,7 +111,7 @@ public final class Constants {
   }
 
   public static class ClimberConstants {
-    public static final int kClimberMotorID = 1;
+    public static final int kClimberMotorID = 14;
     public static final int kUpperLimSwitchId = 8;
     public static final int kLowerLimSwitchId = 9;
     public static final double kClimberMotorMult = 0.9;
