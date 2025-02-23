@@ -142,7 +142,7 @@ class RobotMathTest {
     assertFalse(approxZero(Inches.of(Double.NEGATIVE_INFINITY)));
     assertTrue(approxZero(Celsius.of(0)));
     assertFalse(approxZero(Celsius.of(1)));
-    // WPILib bug with subtracting tempreture
+    // WPILib subtracting temps are weird
     // assertFalse(approxZero(Celsius.of(Kelvin.zero().in(Celsius))));
   }
 
@@ -164,13 +164,13 @@ class RobotMathTest {
     assertTrue(approxZero(Inches.of(0), Meters.of(1)));
     assertFalse(approxZero(Inches.of(Double.POSITIVE_INFINITY), Meters.of(1)));
     assertFalse(approxZero(Inches.of(Double.NEGATIVE_INFINITY), Meters.of(1)));
-    // WPILib bug with subtracting tempreture
+    // WPILib subtracting temps are weird
     // assertTrue(approxZero(Celsius.of(0), Kelvin.of(1)));
     // assertTrue(approxZero(Celsius.of(1), Kelvin.of(1)));
     assertFalse(approxZero(Celsius.of(Kelvin.zero().in(Celsius)), Kelvin.of(1)));
     assertTrue(approxZero(Celsius.of(0), Celsius.of(1)));
     assertTrue(approxZero(Celsius.of(1), Celsius.of(1)));
-    // WPILib bug with subtracting tempreture
+    // WPILib subtracting temps are weird
     // assertFalse(approxZero(Celsius.of(Kelvin.zero().in(Celsius)), Celsius.of(1)));
   }
 
