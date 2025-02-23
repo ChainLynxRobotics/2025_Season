@@ -34,8 +34,9 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
     pidControllerLeader = sparkMaxLeader.getClosedLoopController();
 
     globalConfig
-      .idleMode(Config.idleMode)
-      .encoder.positionConversionFactor(Config.positionConvertionFactor);
+        .idleMode(Config.idleMode)
+        .encoder
+        .positionConversionFactor(Config.positionConvertionFactor);
     globalConfig
         .closedLoop
         .feedbackSensor(Config.feedbackSensor)
