@@ -75,8 +75,8 @@ public final class Constants {
   }
 
   public static class ManipulatorConstants {
-    public static final int PIVOT_ID = -1;
-    public static final int ROLLER_ID = -1;
+    public static final int PIVOT_ID = 18;
+    public static final int ROLLER_ID = 17;
     public static final int LINE_BREAK_PORT = -1;
 
     public static final Angle fullRoll = Rotations.of(0.4);
