@@ -64,6 +64,61 @@ class RobotMathTest {
   }
 
   @Test
+  void testDist() {
+    assertEquals(Meters.of(3), dist(Meters.of(1), Meters.of(4)));
+    assertEquals(Meters.of(3), dist(Meters.of(4), Meters.of(1)));
+    assertEquals(Meters.of(0), dist(Meters.of(-5), Meters.of(-5)));
+    assertTrue(isMeasureNaN(dist(Meters.of(Double.NaN), Meters.of(1))));
+    assertTrue(isMeasureNaN(dist(Meters.of(1), Meters.of(Double.NaN))));
+    assertTrue(isMeasureNaN(dist(Meters.of(Double.NaN), Meters.of(Double.NaN))));
+    // same testing, but with inches
+    assertEquals(Inches.of(3), dist(Inches.of(1), Inches.of(4)));
+    assertEquals(Inches.of(3), dist(Inches.of(4), Inches.of(1)));
+    assertEquals(Inches.of(0), dist(Inches.of(-5), Inches.of(-5)));
+    assertTrue(isMeasureNaN(dist(Inches.of(Double.NaN), Inches.of(1))));
+    assertTrue(isMeasureNaN(dist(Inches.of(1), Inches.of(Double.NaN))));
+    assertTrue(isMeasureNaN(dist(Inches.of(Double.NaN), Inches.of(Double.NaN))));
+    // testing mixed units
+    assertEquals(Inches.of(11), dist(Feet.of(1), Inches.of(1)));
+  }
+
+  @Test
+  void testAbs() {
+    assertTrue(abs(Meters.zero()).compareTo(Meters.zero()) == 0);
+    assertTrue(abs(Meters.of(1)).in(Meters) == 1);
+    assertTrue(abs(Meters.of(-1)).in(Meters) == 1);
+    assertTrue(abs(Meters.of(Double.POSITIVE_INFINITY)).in(Meters) == Double.POSITIVE_INFINITY);
+    assertTrue(abs(Meters.of(Double.NEGATIVE_INFINITY)).in(Meters) == Double.POSITIVE_INFINITY);
+    assertTrue(Double.isNaN(abs(Meters.of(Double.NaN)).in(Meters)));
+    assertTrue(Double.isNaN(abs(Meters.of(-Double.NaN)).in(Meters)));
+    assertTrue(abs(Meters.of(1e-7)).in(Meters) == 1e-7);
+    assertTrue(abs(Meters.of(-1e-7)).in(Meters) == 1e-7);
+    assertTrue(abs(Meters.of(1e+6)).in(Meters) == 1e+6);
+    assertTrue(abs(Meters.of(-1e+6)).in(Meters) == 1e+6);
+  }
+
+  @Test
+  void testIsWithinTolerance() {
+    assertTrue(isWithinTolerance(Meters.zero(), Meters.zero(), Meters.zero()));
+    assertFalse(isWithinTolerance(Meters.zero(), Meters.of(1e-6), Meters.zero()));
+    assertTrue(isWithinTolerance(Meters.zero(), Meters.zero(), Meters.of(1)));
+    assertTrue(
+        isWithinTolerance(Meters.zero(), Meters.zero(), Meters.of(Double.POSITIVE_INFINITY)));
+    assertFalse(isWithinTolerance(Meters.zero(), Meters.of(1), Meters.zero()));
+    assertTrue(isWithinTolerance(Meters.zero(), Meters.of(1), Meters.of(1)));
+    assertTrue(isWithinTolerance(Meters.zero(), Meters.of(1), Meters.of(Double.POSITIVE_INFINITY)));
+    assertFalse(isWithinTolerance(Meters.of(1), Meters.zero(), Meters.zero()));
+    assertTrue(isWithinTolerance(Meters.of(1), Meters.zero(), Meters.of(1)));
+    assertTrue(isWithinTolerance(Meters.of(1), Meters.zero(), Meters.of(Double.POSITIVE_INFINITY)));
+    assertTrue(isWithinTolerance(Meters.of(1), Meters.of(1), Meters.zero()));
+    assertFalse(isWithinTolerance(Meters.of(Double.NaN), Meters.zero(), Meters.zero()));
+    assertFalse(isWithinTolerance(Meters.zero(), Meters.of(Double.NaN), Meters.zero()));
+    assertFalse(isWithinTolerance(Meters.zero(), Meters.zero(), Meters.of(Double.NaN)));
+    assertFalse(
+        isWithinTolerance(Meters.of(Double.NaN), Meters.of(Double.NaN), Meters.of(Double.NaN)));
+  }
+
+  @Test
   void testApproxZero() {
     assertTrue(approxZero(Meters.of(0)));
     assertFalse(approxZero(Meters.of(1)));
@@ -89,7 +144,10 @@ class RobotMathTest {
     assertFalse(approxZero(Celsius.of(1)));
     // WPILib bug with subtracting tempreture
     // assertFalse(approxZero(Celsius.of(Kelvin.zero().in(Celsius))));
+  }
 
+  @Test
+  void testApproxZeroTol() {
     assertTrue(approxZero(Meters.of(0), Meters.of(1)));
     assertTrue(approxZero(Meters.of(1), Meters.of(1)));
     assertTrue(approxZero(Meters.of(-1), Meters.of(1)));
@@ -123,24 +181,5 @@ class RobotMathTest {
     assertFalse(isMeasureNaN(Meters.of(0)));
     assertFalse(isMeasureNaN(Inches.of(Double.POSITIVE_INFINITY)));
     assertFalse(isMeasureNaN(Inches.of(Double.NEGATIVE_INFINITY)));
-  }
-
-  @Test
-  void testDist() {
-    assertEquals(Meters.of(3), dist(Meters.of(1), Meters.of(4)));
-    assertEquals(Meters.of(3), dist(Meters.of(4), Meters.of(1)));
-    assertEquals(Meters.of(0), dist(Meters.of(-5), Meters.of(-5)));
-    assertTrue(isMeasureNaN(dist(Meters.of(Double.NaN), Meters.of(1))));
-    assertTrue(isMeasureNaN(dist(Meters.of(1), Meters.of(Double.NaN))));
-    assertTrue(isMeasureNaN(dist(Meters.of(Double.NaN), Meters.of(Double.NaN))));
-    // same testing, but with inches
-    assertEquals(Inches.of(3), dist(Inches.of(1), Inches.of(4)));
-    assertEquals(Inches.of(3), dist(Inches.of(4), Inches.of(1)));
-    assertEquals(Inches.of(0), dist(Inches.of(-5), Inches.of(-5)));
-    assertTrue(isMeasureNaN(dist(Inches.of(Double.NaN), Inches.of(1))));
-    assertTrue(isMeasureNaN(dist(Inches.of(1), Inches.of(Double.NaN))));
-    assertTrue(isMeasureNaN(dist(Inches.of(Double.NaN), Inches.of(Double.NaN))));
-    // testing mixed units
-    assertEquals(Inches.of(11), dist(Feet.of(1), Inches.of(1)));
   }
 }
