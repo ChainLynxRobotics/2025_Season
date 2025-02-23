@@ -87,9 +87,6 @@ class RobotMathTest {
     assertFalse(approxZero(Inches.of(Double.NEGATIVE_INFINITY)));
     assertTrue(approxZero(Celsius.of(0)));
     assertFalse(approxZero(Celsius.of(1)));
-    System.out.println(Celsius.of(Kelvin.zero().in(Celsius)).in(Kelvin));
-    System.out.println(Celsius.of(Kelvin.zero().in(Celsius)).in(Celsius));
-    System.out.println(Celsius.zero().minus(Celsius.of(-1)).in(Celsius) + " cool");
     // WPILib bug with subtracting tempreture
     // assertFalse(approxZero(Celsius.of(Kelvin.zero().in(Celsius))));
 
@@ -118,7 +115,7 @@ class RobotMathTest {
     // WPILib bug with subtracting tempreture
     // assertFalse(approxZero(Celsius.of(Kelvin.zero().in(Celsius)), Celsius.of(1)));
   }
-  
+
   @Test
   void testIsMeasureNaN() {
     assertTrue(isMeasureNaN(Meters.of(Double.NaN)));

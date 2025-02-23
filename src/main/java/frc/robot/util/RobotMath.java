@@ -64,11 +64,6 @@ public final class RobotMath {
       // NaN's propagate
       return (M) measure.baseUnit().of(Double.NaN);
     }
-    System.out.println(measure + ": " + measure.gte((M) measure.unit().zero()));
-    System.out.println(
-        measure.gte((M) measure.unit().zero())
-            ? measure
-            : (M) ((M) measure.unit().zero()).minus(measure));
     return measure.gte((M) measure.unit().zero())
         ? measure
         : (M) ((M) measure.unit().zero()).minus(measure);
