@@ -56,16 +56,16 @@ public class Elevator extends SubsystemBase implements AutoCloseable {
   public void setSetpoint(int stage) {
     switch (stage) {
       case 1:
-        this.setpoint = ElevatorConstants.stageOneSetpoint;
+        this.setpoint = ElevatorConstants.levelOneSetpoint;
         break;
       case 2:
-        this.setpoint = ElevatorConstants.stageTwoSetpoint;
+        this.setpoint = ElevatorConstants.levelTwoSetpoint;
         break;
       case 3:
-        this.setpoint = ElevatorConstants.stageThreeSetpoint;
+        this.setpoint = ElevatorConstants.levelThreeSetpoint;
         break;
       case 4:
-        this.setpoint = ElevatorConstants.stageFourSetpoint;
+        this.setpoint = ElevatorConstants.levelFourSetpoint;
         break;
       default:
         this.setpoint = Meters.of(0);

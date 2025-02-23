@@ -117,10 +117,10 @@ public final class Constants {
     public static final int sparkMaxCANId = 15;
     public static final int sparkMaxFollowerCANId = 16;
     public static final Distance maxHeight = Meters.of(1);
-    public static final Distance stageOneSetpoint = Meters.of(0);
-    public static final Distance stageTwoSetpoint = Meters.of(0);
-    public static final Distance stageThreeSetpoint = Meters.of(0);
-    public static final Distance stageFourSetpoint = Meters.of(0);
+    public static final Distance levelOneSetpoint = Meters.of(0);
+    public static final Distance levelTwoSetpoint = Meters.of(0);
+    public static final Distance levelThreeSetpoint = Meters.of(0);
+    public static final Distance levelFourSetpoint = Meters.of(0);
 
     public static final Distance encoderOffset = Meters.of(0);
 
