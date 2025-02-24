@@ -11,10 +11,10 @@ public final class RobotMath {
    */
   public static <U extends Unit> boolean measureWithinBounds(
       Measure<U> measure, Measure<U> bounds) {
-    if (Double.isNaN(measure.baseUnitMagnitude())) {
+    if (isMeasureNaN(measure)) {
       return false;
     }
-    if (Double.isNaN(bounds.baseUnitMagnitude())) {
+    if (isMeasureNaN(bounds)) {
       return false;
     }
     return measure.lt(bounds) && measure.gt(bounds.unaryMinus());
@@ -28,13 +28,13 @@ public final class RobotMath {
    */
   public static <U extends Unit> boolean measureWithinBounds(
       Measure<U> measure, Measure<U> lower, Measure<U> upper) {
-    if (Double.isNaN(measure.baseUnitMagnitude())) {
+    if (isMeasureNaN(measure)) {
       return false;
     }
-    if (Double.isNaN(lower.baseUnitMagnitude())) {
+    if (isMeasureNaN(lower)) {
       return false;
     }
-    if (Double.isNaN(upper.baseUnitMagnitude())) {
+    if (isMeasureNaN(upper)) {
       return false;
     }
     return measure.lt(upper) && measure.gt(lower);
@@ -47,10 +47,7 @@ public final class RobotMath {
    */
   @SuppressWarnings("unchecked")
   public static <U extends Unit, M extends Measure<U>> M dist(M measure1, M measure2) {
-    if (Double.isNaN(measure1.baseUnitMagnitude())) {
-      // NaN's propagate
-      return (M) measure1.baseUnit().of(Double.NaN);
-    }
+    // No need for NaN checks as minus with retrun NaN if eather are NaN
     return abs((M) measure1.minus(measure2));
   }
 
@@ -60,7 +57,7 @@ public final class RobotMath {
    */
   @SuppressWarnings("unchecked")
   public static <U extends Unit, M extends Measure<U>> M abs(M measure) {
-    if (Double.isNaN(measure.baseUnitMagnitude())) {
+    if (isMeasureNaN(measure)) {
       // NaN's propagate
       return (M) measure.baseUnit().of(Double.NaN);
     }
@@ -71,13 +68,13 @@ public final class RobotMath {
 
   public static <U extends Unit> boolean isWithinTolerance(
       Measure<U> measure1, Measure<U> measure2, Measure<U> tol) {
-    if (Double.isNaN(measure1.baseUnitMagnitude())) {
+    if (isMeasureNaN(measure1)) {
       return false;
     }
-    if (Double.isNaN(measure2.baseUnitMagnitude())) {
+    if (isMeasureNaN(measure2)) {
       return false;
     }
-    if (Double.isNaN(tol.baseUnitMagnitude())) {
+    if (isMeasureNaN(tol)) {
       return false;
     }
     return dist(measure1, measure2).lte(tol);
@@ -89,7 +86,7 @@ public final class RobotMath {
   }
 
   public static <U extends Unit> boolean approxZero(Measure<U> measure, Measure<U> tol) {
-    if (Double.isNaN(measure.in(measure.unit()))) {
+    if (isMeasureNaN(measure)) {
       return false;
     }
     return abs(measure).lte(tol);
