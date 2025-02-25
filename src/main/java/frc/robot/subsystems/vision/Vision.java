@@ -81,11 +81,10 @@ public class Vision extends SubsystemBase implements AutoCloseable {
 
     // Updates the Drivetrain PoesEstimator with both camera streams
     this.cameras.stream()
-        .map(c -> Vision.updateAngleAndGetEstimate(c, allUnreadResults)) //
+        .map(c -> Vision.updateAngleAndGetEstimate(c, allUnreadResults))
         .filter(Objects::nonNull)
         .flatMap(Optional::stream)
         .filter(Objects::nonNull)
-        .filter(Vision::isUsingTwoTags)
         .filter(v -> zIsRight(v, VisionConstants.kMaxVertDisp))
         .filter(Vision::isOnField)
         .filter(Vision::maxDistanceIsInThreshold)
@@ -93,8 +92,10 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .filter(v -> pitchIsInBounds(v, VisionConstants.kPitchBounds))
         .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))
         .map(Vision::generatePoseEstimate)
-        .forEach(
-            dtUpdateEstimate); // updates drivetrain swerve pose estimator with vision measurement
+        .forEach((pose) -> {
+          System.out.println("new vision pose estimate: " + pose);
+          dtUpdateEstimate.accept(pose);
+        }); // updates drivetrain swerve pose estimator with vision measurement
 
     bestTags.clear(); // clear to only have latest results
     allUnreadResults.stream()

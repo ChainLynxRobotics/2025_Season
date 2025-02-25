@@ -69,7 +69,8 @@ public class Drive extends SubsystemBase {
           Math.max(
               Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-
+  private boolean tipCorrectionEnabled = false;
+  private boolean visionConverge = false;
   // PathPlanner config constants
 
   private static final RobotConfig PP_CONFIG =
@@ -227,6 +228,10 @@ public class Drive extends SubsystemBase {
    */
   public void runVelocity(ChassisSpeeds speeds) {
     // Calculate module setpoints
+    if (tipCorrectionEnabled) {
+      ChassisSpeeds offset = calculateTipCorrection();
+      speeds = speeds.plus(offset);
+    }
     speeds = ChassisSpeeds.discretize(speeds, 0.02);
     SwerveModuleState[] setpointStates = kinematics.toSwerveModuleStates(speeds);
     SwerveDriveKinematics.desaturateWheelSpeeds(setpointStates, TunerConstants.kSpeedAt12Volts);
@@ -340,10 +345,16 @@ public class Drive extends SubsystemBase {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
+  /** Whether to update more aggressively to vision measurement */
+  public void converge(boolean convergeFaster) {
+    visionConverge = convergeFaster;
+  }
+
   public void updateEstimates(PoseEstimate poseEstimate) {
     final var visionEstimated = poseEstimate.estimatedPose().estimatedPose.toPose2d();
-    final var stddevs = poseEstimate.standardDev();
+    final var stddevs = visionConverge ? poseEstimate.standardDev().times(0.01) : poseEstimate.standardDev();
 
+    System.out.println("stddevs for vision measurement: " + stddevs);
     addVisionMeasurement(visionEstimated, poseEstimate.estimatedPose().timestampSeconds, stddevs);
   }
 
@@ -376,30 +387,41 @@ public class Drive extends SubsystemBase {
     };
   }
 
-  public ChassisSpeeds calculateTipCorrection() {
-    Constants.DriveConstants.tipControllerX.setSetpoint(0);
-    Constants.DriveConstants.tipControllerY.setSetpoint(0);
+  public void setTipCorrection(boolean enabled) {
+    tipCorrectionEnabled = enabled;
+  }
 
-    double tipAngle =
-        Math.atan(
-            Math.sqrt(
-                Math.pow(gyroInputs.xRotation.in(Radians), 2)
-                    + Math.pow(gyroInputs.yRotation.in(Radians), 2)));
-    double fNormal = Constants.ROBOT_MASS_KG.in(Kilograms) * 9.81 * Math.cos(tipAngle);
-    double tipMag = fNormal * Math.sin(tipAngle); // projection of normal force onto horizontal
-    double angle =
-        Math.atan2(
-            gyroInputs.yRotation.in(Radians),
-            gyroInputs.xRotation.in(Radians)); // direction of tip vector relative to x-axis
+  public ChassisSpeeds calculateTipCorrection() {
+    Constants.DriveConstants.tipController.setSetpoint(0);
+
+    // calculate normal vectors
+    double w = gyroInputs.quatW;
+    double norm = Math.sqrt(1 - Math.pow(w, 2));
+    double Nx = gyroInputs.quatX;
+    double Ny = gyroInputs.quatY;
+    double Nz = gyroInputs.quatZ;
+    if (norm >= 0.001) {
+      Nx /= norm;
+      Ny /= norm;
+      Nz /= norm;
+    }
+
+    double mag = Math.sqrt(Nx*Nx + Ny*Ny);
+    Nx /= mag;
+    Ny /= mag;
+    double angle = Math.acos(Nz);
+    double ff = Math.tan(angle) * Constants.DriveConstants.tipFF;
+
 
     double xSpeed =
-        Constants.DriveConstants.tipControllerX.calculate(
+        Constants.DriveConstants.tipController.calculate(
             MathUtil.applyDeadband(
-                tipMag * Math.cos(angle), Constants.DriveConstants.tipDeadband.in(Newtons)));
+                Nx * ff, Constants.DriveConstants.tipDeadband.in(Newtons))) + ff;
+
     double ySpeed =
-        Constants.DriveConstants.tipControllerX.calculate(
+        Constants.DriveConstants.tipController.calculate(
             MathUtil.applyDeadband(
-                tipMag * Math.sin(angle), Constants.DriveConstants.tipDeadband.in(Newtons)));
+                Ny * ff, Constants.DriveConstants.tipDeadband.in(Newtons))) + ff;
 
     return new ChassisSpeeds(xSpeed, ySpeed, 0);
   }

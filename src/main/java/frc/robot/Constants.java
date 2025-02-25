@@ -68,8 +68,8 @@ public final class Constants {
     public static final PIDController translationController = new PIDController(0.5, 0.001, 0);
     public static final PIDController rotationController = new PIDController(0.03, 0.01, 0);
 
-    public static final PIDController tipControllerX = new PIDController(0.25, 0, 0.1);
-    public static final PIDController tipControllerY = new PIDController(0.25, 0, 0.1);
+    public static final PIDController tipController = new PIDController(0.25, 0, 0.1);
+    public static final double tipFF = 0.1;
     public static final Force tipDeadband = Newtons.of(3);
   }
 
@@ -77,9 +77,9 @@ public final class Constants {
     public static final Distance kFieldWidth = Meters.of(16.54);
     public static final Distance kFieldHeight = Meters.of(8.229);
 
-    public static final Distance kMinCamDistToTag = Meters.of(0.5);
-    public static final Distance kMaxCamDistToTag = Meters.of(0.8);
-    public static final Distance kMaxVertDisp = Meters.of(0.2);
+    public static final Distance kMinCamDistToTag = Meters.of(0.1);
+    public static final Distance kMaxCamDistToTag = Meters.of(2.0);
+    public static final Distance kMaxVertDisp = Meters.of(2.5);
     public static final Angle kRollBounds = Radians.of(0.2);
     public static final Angle kPitchBounds = Radians.of(0.2);
 
