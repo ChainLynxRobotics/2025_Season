@@ -42,8 +42,8 @@ public class AutoAim extends Command {
 
   @Override
   public void initialize() {
-    angErr = VisionConstants.kMinAngError; // .in(Units.Degrees);
-    transErr = VisionConstants.kMinTransError; // .in(Units.Meters);
+    angErr = VisionConstants.kMinAngError;
+    transErr = VisionConstants.kMinTransError;
   }
 
   @Override
@@ -73,7 +73,7 @@ public class AutoAim extends Command {
                 VisionConstants.KCamChassisZOffset.in(Meters),
                 targetPose.getZ(),
                 VisionConstants.kCameraPitch.in(Radians),
-                targetPose.getRotation().getX()));
+                targetPose.getRotation().getY()));
 
     Angle curRot = curPose.getRotation().getMeasure();
     angErr = RobotMath.abs(curRot.minus(targetYaw));
