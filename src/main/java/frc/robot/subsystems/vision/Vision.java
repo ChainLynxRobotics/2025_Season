@@ -92,10 +92,11 @@ public class Vision extends SubsystemBase implements AutoCloseable {
         .filter(v -> pitchIsInBounds(v, VisionConstants.kPitchBounds))
         .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))
         .map(Vision::generatePoseEstimate)
-        .forEach((pose) -> {
-          System.out.println("new vision pose estimate: " + pose);
-          dtUpdateEstimate.accept(pose);
-        }); // updates drivetrain swerve pose estimator with vision measurement
+        .forEach(
+            (pose) -> {
+              System.out.println("new vision pose estimate: " + pose);
+              dtUpdateEstimate.accept(pose);
+            }); // updates drivetrain swerve pose estimator with vision measurement
 
     bestTags.clear(); // clear to only have latest results
     allUnreadResults.stream()

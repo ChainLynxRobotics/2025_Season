@@ -37,7 +37,6 @@ public interface GyroIO {
     public double quatX;
     public double quatY;
     public double quatZ;
-
   }
 
   public default void updateInputs(GyroIOInputs inputs) {}

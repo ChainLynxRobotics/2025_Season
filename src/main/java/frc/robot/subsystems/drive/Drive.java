@@ -352,7 +352,8 @@ public class Drive extends SubsystemBase {
 
   public void updateEstimates(PoseEstimate poseEstimate) {
     final var visionEstimated = poseEstimate.estimatedPose().estimatedPose.toPose2d();
-    final var stddevs = visionConverge ? poseEstimate.standardDev().times(0.01) : poseEstimate.standardDev();
+    final var stddevs =
+        visionConverge ? poseEstimate.standardDev().times(0.01) : poseEstimate.standardDev();
 
     System.out.println("stddevs for vision measurement: " + stddevs);
     addVisionMeasurement(visionEstimated, poseEstimate.estimatedPose().timestampSeconds, stddevs);
@@ -406,22 +407,21 @@ public class Drive extends SubsystemBase {
       Nz /= norm;
     }
 
-    double mag = Math.sqrt(Nx*Nx + Ny*Ny);
+    double mag = Math.sqrt(Nx * Nx + Ny * Ny);
     Nx /= mag;
     Ny /= mag;
     double angle = Math.acos(Nz);
     double ff = Math.tan(angle) * Constants.DriveConstants.tipFF;
 
-
     double xSpeed =
         Constants.DriveConstants.tipController.calculate(
-            MathUtil.applyDeadband(
-                Nx * ff, Constants.DriveConstants.tipDeadband.in(Newtons))) + ff;
+                MathUtil.applyDeadband(Nx * ff, Constants.DriveConstants.tipDeadband.in(Newtons)))
+            + ff;
 
     double ySpeed =
         Constants.DriveConstants.tipController.calculate(
-            MathUtil.applyDeadband(
-                Ny * ff, Constants.DriveConstants.tipDeadband.in(Newtons))) + ff;
+                MathUtil.applyDeadband(Ny * ff, Constants.DriveConstants.tipDeadband.in(Newtons)))
+            + ff;
 
     return new ChassisSpeeds(xSpeed, ySpeed, 0);
   }
