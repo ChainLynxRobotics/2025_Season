@@ -72,7 +72,7 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
  */
 public final class Constants {
   public static final Mode currentMode =
-      Mode.SIM; // RobotBase.isReal() ? Mode.REAL : Mode.SIM; robot thinks it's fake wut
+      Mode.REAL; // RobotBase.isReal() ? Mode.REAL : Mode.SIM; robot thinks it's fake wut
   public static final Alliance defaultAlliance = Alliance.Blue;
 
   // Physical values of the robot
