@@ -14,6 +14,7 @@ import com.revrobotics.spark.config.AbsoluteEncoderConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
 import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import edu.wpi.first.math.filter.Debouncer;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.wpilibj.DigitalInput;
 import frc.robot.Constants;
@@ -30,6 +31,7 @@ public class ManipulatorIOSparkMax implements ManipulatorIO {
   private AbsoluteEncoder pivotEncoder;
 
   private DigitalInput beamBreak;
+  private Debouncer beamDebouncer;
 
   public ManipulatorIOSparkMax(SparkMax pivot, SparkMax rollers) {
     this.pivot = pivot;
@@ -40,6 +42,7 @@ public class ManipulatorIOSparkMax implements ManipulatorIO {
     this.pivotController = pivot.getClosedLoopController();
 
     this.beamBreak = new DigitalInput(kBeamBreakPort);
+    this.beamDebouncer = new Debouncer(0.2);
     var encoderConf =
         new AbsoluteEncoderConfig()
             .zeroCentered(true)
@@ -59,7 +62,7 @@ public class ManipulatorIOSparkMax implements ManipulatorIO {
     inputs.manipulatorAngle = Rotations.of(pivotEncoder.getPosition());
     inputs.rollerOutput = rollers.getAppliedOutput();
     inputs.pivotOutput = pivot.getAppliedOutput();
-    inputs.beamBroken = beamBreak.get();
+    inputs.beamBroken = beamDebouncer.calculate(beamBreak.get());
   }
 
   @Override
