@@ -461,11 +461,14 @@ public class RobotContainer {
   private Command rollerAction(boolean forward) {
     return sequence(
         runOnce(() -> manipulator.spinRollers(forward), manipulator),
-        waitUntil(
-            () ->
-                (manipulator.getState() == GameState.HUMAN_PLAYER_STATION
-                    ? manipulator.hasCoral()
-                    : !manipulator.hasCoral())),
+        ((manipulator.getState() == GameState.L2_ALGAE
+                || manipulator.getState() == GameState.L3_ALGAE)
+            ? waitSeconds(2)
+            : waitUntil(
+                () ->
+                    (manipulator.getState() == GameState.HUMAN_PLAYER_STATION
+                        ? manipulator.hasCoral()
+                        : !manipulator.hasCoral()))),
         runOnce(manipulator::stopRollers, manipulator));
   }
 
