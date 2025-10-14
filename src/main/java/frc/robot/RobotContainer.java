@@ -549,6 +549,7 @@ public class RobotContainer {
   }
 
   public void logMechanismForAScopeDisplay() {
+    if (Constants.currentMode != Mode.SIM) return;
     Logger.recordOutput(
         "MechanismLocations",
         new Pose3d[] {
