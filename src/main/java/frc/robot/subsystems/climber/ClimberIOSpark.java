@@ -24,7 +24,7 @@ public class ClimberIOSpark implements ClimberIO {
     this.encoder = motorController.getAbsoluteEncoder();
     this.controller = motorController.getClosedLoopController();
 
-    config.inverted(true);
+    config.inverted(false).smartCurrentLimit(5).secondaryCurrentLimit(7);
     config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
     motorController.configure(
         config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
