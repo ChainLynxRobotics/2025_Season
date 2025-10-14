@@ -43,11 +43,9 @@ public class ManipulatorIOSparkMax implements ManipulatorIO {
 
     this.beamBreak = new DigitalInput(kBeamBreakPort);
     this.beamDebouncer = new Debouncer(0.2);
-    var encoderConf =
-        new AbsoluteEncoderConfig()
-            .zeroCentered(true)
-            .zeroOffset(pivot.configAccessor.absoluteEncoder.getZeroOffset() + 0.25);
-    pivotConfig.inverted(false).smartCurrentLimit(ManipulatorConstants.currentLimit);
+
+    var encoderConf = new AbsoluteEncoderConfig().zeroCentered(true).inverted(true);
+    pivotConfig.smartCurrentLimit(ManipulatorConstants.currentLimit).inverted(true);
     pivotConfig.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder).pid(kP, kI, kD);
     pivotConfig.apply(encoderConf);
     if (Constants.currentMode == Mode.SIM) pivotConfig.closedLoop.pid(kSimP, kSimI, kSimD);
