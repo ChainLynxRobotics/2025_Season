@@ -23,8 +23,7 @@ import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Angle;
 import edu.wpi.first.units.measure.AngularVelocity;
 import frc.robot.generated.TunerConstants;
-import frc.robot.util.Fault;
-import frc.robot.util.FaultChecker;
+import frc.robot.util.faultChecker.CTREFaultChecker;
 import java.util.Queue;
 
 /** IO implementation for Pigeon 2. */
@@ -38,6 +37,8 @@ public class GyroIOPigeon2 implements GyroIO {
   private final Queue<Double> yawTimestampQueue;
   private final StatusSignal<AngularVelocity> yawVelocity = pigeon.getAngularVelocityZWorld();
 
+  public CTREFaultChecker pigeonFaults = new CTREFaultChecker(pigeon, "pigeon2");
+
   public GyroIOPigeon2() {
     pigeon.getConfigurator().apply(new Pigeon2Configuration());
     pigeon.getConfigurator().setYaw(0.0);
@@ -47,20 +48,6 @@ public class GyroIOPigeon2 implements GyroIO {
     yawTimestampQueue = PhoenixOdometryThread.getInstance().makeTimestampQueue();
     yawPositionQueue = PhoenixOdometryThread.getInstance().registerSignal(pigeon.getYaw());
     pigeon.getAccumGyroX();
-
-    pigeonFaults.addFault(new Fault(pigeon::getFault_BootDuringEnable));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_BootIntoMotion));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_BootupAccelerometer));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_BootupGyroscope));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_BootupMagnetometer));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_DataAcquiredLate));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_Hardware));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_LoopTimeSlow));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_SaturatedAccelerometer));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_SaturatedGyroscope));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_SaturatedMagnetometer));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_Undervoltage));
-    pigeonFaults.addFault(new Fault(pigeon::getFault_UnlicensedFeatureInUse));
   }
 
   @Override
@@ -89,10 +76,13 @@ public class GyroIOPigeon2 implements GyroIO {
     yawPositionQueue.clear();
   }
 
-  public FaultChecker pigeonFaults = new FaultChecker("pigeon2");
-
   @Override
   public void updateFault() {
-    pigeonFaults.updateFaults();
+    // pigeonFaults.updateFaults();
+  }
+
+  @Override
+  public void resetGyro() {
+    pigeon.reset();
   }
 }

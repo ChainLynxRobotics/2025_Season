@@ -1,16 +1,23 @@
 package frc.robot.commands;
 
+import static edu.wpi.first.units.Units.*;
+
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.kinematics.ChassisSpeeds;
 import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.AngularVelocity;
+import edu.wpi.first.units.measure.Distance;
+import edu.wpi.first.units.measure.LinearVelocity;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.VisionConstants;
 import frc.robot.subsystems.drive.Drive;
 import frc.robot.subsystems.vision.Vision;
-import frc.robot.subsystems.vision.Vision.TagInfo;
+import frc.robot.subsystems.vision.Vision.TagTuple;
+import frc.robot.util.RobotMath;
 import java.util.List;
 import org.photonvision.PhotonUtils;
 
@@ -19,77 +26,74 @@ public class AutoAim extends Command {
   private Vision vision;
   private CommandXboxController controller;
 
-  private double targetYaw;
-  private double targetRange;
-  private double angErr;
-  private double transErr;
+  private Angle targetYaw;
+  private Distance targetRange;
+  private Angle angErr;
+  private Distance transErr;
 
   public AutoAim(Drive drive, Vision vision, CommandXboxController controller) {
     this.drive = drive;
     this.vision = vision;
     this.controller = controller;
-    this.targetYaw = 0.0;
-    this.targetRange = 0.0;
+    this.targetYaw = Radians.zero();
+    this.targetRange = Meters.zero();
     addRequirements(drive, vision);
   }
 
   @Override
   public void initialize() {
-    angErr = VisionConstants.minAngError.in(Units.Degrees);
-    transErr = VisionConstants.minTransError.in(Units.Meters);
+    angErr = VisionConstants.kMinAngError;
+    transErr = VisionConstants.kMinTransError;
   }
 
   @Override
   public void execute() {
-    double forward =
-        -controller.getLeftY() * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond);
-    double strafe =
-        -controller.getLeftX() * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond);
-    double turn =
-        -controller.getRightX() * DriveConstants.maxRotVelocity.in(Units.RadiansPerSecond);
+    LinearVelocity forward = DriveConstants.kMaxPathSpeed.times(-controller.getLeftY());
+    LinearVelocity strafe = DriveConstants.kMaxPathSpeed.times(-controller.getLeftX());
+    AngularVelocity turn = DriveConstants.kMaxRotVelocity.times(-controller.getRightX());
 
-    Pose3d target = null;
+    Pose3d targetPose = null;
     Pose2d curPose = drive.getPose();
-    List<TagInfo> bestTaggies = vision.getBestTags();
+    List<TagTuple> bestTaggies = vision.getBestTags();
     if (bestTaggies != null) {
       if (bestTaggies.size() != 0) {
-        TagInfo tagInfo = bestTaggies.get(bestTaggies.size() - 1);
-        target = tagInfo.tagPose().get();
+        TagTuple tagInfo = bestTaggies.get(bestTaggies.size() - 1);
+        targetPose = tagInfo.tagPose().get();
       }
     }
 
-    if (target == null) {
+    if (targetPose == null) {
       drive.runVelocity(new ChassisSpeeds(0.0, 0.0, 0.0));
       return;
     }
-    targetYaw = PhotonUtils.getYawToPose(curPose, target.toPose2d()).getDegrees();
+    targetYaw = PhotonUtils.getYawToPose(curPose, targetPose.toPose2d()).getMeasure();
     targetRange =
-        PhotonUtils.calculateDistanceToTargetMeters(
-            VisionConstants.camChassisZOffset,
-            target.getZ(),
-            VisionConstants.kCameraPitchRadians,
-            target.getRotation().getX());
+        Meters.of(
+            PhotonUtils.calculateDistanceToTargetMeters(
+                VisionConstants.KCamChassisZOffset.in(Meters),
+                targetPose.getZ(),
+                VisionConstants.kCameraPitch.in(Radians),
+                targetPose.getRotation().getY()));
 
-    double curRot = curPose.getRotation().getDegrees();
-    angErr = Math.abs(curRot - targetYaw);
+    Angle curRot = curPose.getRotation().getMeasure();
+    angErr = RobotMath.abs(curRot.minus(targetYaw));
     turn =
-        DriveConstants.rotationController.calculate(curRot, targetYaw)
-            * DriveConstants.maxRotVelocity.in(Units.RadiansPerSecond);
-    transErr = Math.abs(targetRange - VisionConstants.tagDistSetpoint);
+        RadiansPerSecond.of(
+            DriveConstants.kRotationController.calculate(curRot.in(Radians), targetYaw.in(Radians))
+                * DriveConstants.kMaxRotVelocity.in(RadiansPerSecond));
+    transErr = RobotMath.abs(targetRange.minus(VisionConstants.tagDistSetpoint));
     forward =
-        DriveConstants.translationController.calculate(targetRange, VisionConstants.tagDistSetpoint)
-            * DriveConstants.maxTranslationSpeed.in(Units.MetersPerSecond);
+        MetersPerSecond.of(
+            DriveConstants.kTranslationController.calculate(
+                    targetRange.in(Meters), VisionConstants.tagDistSetpoint.in(Meters))
+                * DriveConstants.kMaxPathSpeed.in(Units.MetersPerSecond));
     // Command drivetrain motors based on target speeds
     drive.runVelocity(new ChassisSpeeds(forward, strafe, turn));
   }
 
   @Override
   public boolean isFinished() {
-    if (angErr < VisionConstants.minAngError.in(Units.Degrees)
-        && transErr < VisionConstants.minTransError.in(Units.Meters)) {
-      return true;
-    }
-    return false;
+    return angErr.lt(VisionConstants.kMinAngError) && transErr.lt(VisionConstants.kMinTransError);
   }
 
   @Override

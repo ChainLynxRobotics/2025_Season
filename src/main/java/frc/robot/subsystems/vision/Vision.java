@@ -1,12 +1,16 @@
 package frc.robot.subsystems.vision;
 
+import static edu.wpi.first.units.Units.*;
+
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.geometry.Pose3d;
 import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
-import edu.wpi.first.units.Units;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.units.measure.Distance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants.VisionConstants;
+import frc.robot.util.RobotMath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -20,21 +24,22 @@ import org.photonvision.PhotonPoseEstimator.PoseStrategy;
 import org.photonvision.targeting.PhotonPipelineResult;
 import org.photonvision.targeting.PhotonTrackedTarget;
 
-public class Vision extends SubsystemBase {
+public class Vision extends SubsystemBase implements AutoCloseable {
 
   /** static class wrapping a pose estimate with standard derivations for position and rotation */
   public static record PoseEstimate(EstimatedRobotPose estimatedPose, Matrix<N3, N1> standardDev) {}
-  /** static class wrapping a pose estimate, Photon Camera name, and pose estimate error */
-  public static record EstimateAndInfo(
+  /** A PoseEstimate and the associated PhotonCamera name and pose ambiguity */
+  public static record EstimateTuple(
       EstimatedRobotPose visionEstimate, String cameraName, double ambiguity) {}
 
-  /** static class containing Photon Camera and corresponding Photon Pose Estimator */
-  public static record CamToEstimator(PhotonCamera photonCamera, PhotonPoseEstimator estimator) {}
+  /** A PhotonCamera and its corresponding PhotonPoseEstimator */
+  public static record PhotonPoseEstimatorTuple(
+      PhotonCamera photonCamera, PhotonPoseEstimator estimator) {}
 
-  /** Tag id and tag Pose3d on field */
-  public static record TagInfo(Integer tagId, Optional<Pose3d> tagPose) {}
+  /** Tag id and tag Optional<Pose3d> on field */
+  public static record TagTuple(Integer tagId, Optional<Pose3d> tagPose) {}
 
-  private List<CamToEstimator> cameras;
+  private List<PhotonPoseEstimatorTuple> cameras;
   private final Consumer<PoseEstimate> dtUpdateEstimate;
 
   public static final PhotonCamera aprilCamOne = new PhotonCamera("aprilOne");
@@ -42,22 +47,26 @@ public class Vision extends SubsystemBase {
 
   public static final PhotonPoseEstimator poseEstimatorOne =
       new PhotonPoseEstimator(
-          VisionConstants.aprilTagFieldLayout,
+          VisionConstants.kAprilTagFieldLayout,
           PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-          VisionConstants.robotToCamOne);
+          VisionConstants.kRobotToCamOne);
   public static final PhotonPoseEstimator poseEstimatorTwo =
       new PhotonPoseEstimator(
-          VisionConstants.aprilTagFieldLayout,
+          VisionConstants.kAprilTagFieldLayout,
           PoseStrategy.MULTI_TAG_PNP_ON_COPROCESSOR,
-          VisionConstants.robotToCamTwo);
-  private List<TagInfo> bestTags = new ArrayList<>();
+          VisionConstants.kRobotToCamTwo);
+  private List<TagTuple> bestTags = new ArrayList<>();
 
-  public Vision(Consumer<PoseEstimate> dtUpdateEstimate) {
+  /**
+   * @param drivetrainUpdatePose Consumes vision PoseEstimates to update the Drivetrain's
+   *     PoseEstimator
+   */
+  public Vision(Consumer<PoseEstimate> drivetrainUpdatePose) {
     this.cameras =
         List.of(
-            new CamToEstimator(aprilCamOne, poseEstimatorOne),
-            new CamToEstimator(aprilCamTwo, poseEstimatorTwo));
-    this.dtUpdateEstimate = dtUpdateEstimate;
+            new PhotonPoseEstimatorTuple(aprilCamOne, poseEstimatorOne),
+            new PhotonPoseEstimatorTuple(aprilCamTwo, poseEstimatorTwo));
+    this.dtUpdateEstimate = drivetrainUpdatePose;
     for (final var camToEstimator : this.cameras) {
       camToEstimator.estimator.setMultiTagFallbackStrategy(PoseStrategy.LOWEST_AMBIGUITY);
     }
@@ -70,21 +79,23 @@ public class Vision extends SubsystemBase {
             .flatMap(c -> c.photonCamera().getAllUnreadResults().stream())
             .toList();
 
+    // Updates the Drivetrain PoesEstimator with both camera streams
     this.cameras.stream()
-        .map(c -> Vision.updateAngGetEstimate(c, allUnreadResults))
+        .map(c -> Vision.updateAngleAndGetEstimate(c, allUnreadResults))
         .filter(Objects::nonNull)
         .flatMap(Optional::stream)
         .filter(Objects::nonNull)
-        .filter(Vision::isUsingTwoTags)
-        .filter(Vision::zIsRight)
         .filter(Vision::isOnField)
-        .filter(Vision::maxDistanceIsInThreshold)
-        .filter(Vision.isAmbiguityLess(0.25))
-        .filter(Vision::pitchIsInBounds)
-        .filter(Vision::rollIsInBounds)
+        /*.filter(Vision::maxDistanceIsInThreshold)
+        .filter(Vision.isAmbiguityLess(VisionConstants.kMaxTagAmbiguity))
+        .filter(v -> pitchIsInBounds(v, VisionConstants.kPitchBounds))
+        .filter(v -> rollIsInBounds(v, VisionConstants.kRollBounds))*/
         .map(Vision::generatePoseEstimate)
         .forEach(
-            dtUpdateEstimate); // updates drivetrain swerve pose estimator with vision measurement
+            (pose) -> {
+              System.out.println("new vision pose estimate: " + pose);
+              dtUpdateEstimate.accept(pose);
+            }); // updates drivetrain swerve pose estimator with vision measurement
 
     bestTags.clear(); // clear to only have latest results
     allUnreadResults.stream()
@@ -93,102 +104,114 @@ public class Vision extends SubsystemBase {
         .filter(Objects::nonNull)
         .map(PhotonTrackedTarget::getFiducialId)
         .filter(Objects::nonNull)
-        .map(tagId -> new TagInfo(tagId, VisionConstants.aprilTagFieldLayout.getTagPose(tagId)))
+        .map(tagId -> new TagTuple(tagId, VisionConstants.kAprilTagFieldLayout.getTagPose(tagId)))
         .forEach(bestTags::add);
   }
 
-  public List<TagInfo> getBestTags() {
+  public List<TagTuple> getBestTags() {
     return this.bestTags;
   }
 
-  private static PoseEstimate generatePoseEstimate(EstimateAndInfo estimateAndInfo) {
-    double maxDistance =
-        estimateAndInfo.visionEstimate.targetsUsed.stream()
-            .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
-            .max()
-            .orElse(0.0);
+  private static PoseEstimate generatePoseEstimate(EstimateTuple estimateAndInfo) {
+    Distance maxDistance =
+        Meters.of(
+            estimateAndInfo.visionEstimate.targetsUsed.stream()
+                .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
+                .max()
+                .orElse(0.0));
 
     final var stdDevs =
         VisionConstants.kMultiTagStdDevs
-            .times(maxDistance)
+            .times(maxDistance.in(Meters))
             .times(4 / Math.pow(estimateAndInfo.visionEstimate.targetsUsed.size(), 2));
     return new PoseEstimate(estimateAndInfo.visionEstimate, stdDevs);
   }
 
-  private static Optional<EstimateAndInfo> updateAngGetEstimate(
-      CamToEstimator camToEstimator, List<PhotonPipelineResult> results) {
-    if (!results.isEmpty()) {
-      final var latestResult = results.get(results.size() - 1);
-      if (!latestResult.hasTargets()) {
-        return Optional.empty();
-      }
+  /**
+   * @param camToEstimator
+   * @param results
+   * @return
+   */
+  private static Optional<EstimateTuple> updateAngleAndGetEstimate(
+      PhotonPoseEstimatorTuple camToEstimator, List<PhotonPipelineResult> results) {
 
-      final var estimatedPose = camToEstimator.estimator.update(latestResult);
-      if (estimatedPose.isEmpty()) {
-        return Optional.empty();
-      }
-      final var ambiguity = latestResult.getBestTarget().getPoseAmbiguity();
-      return Optional.of(
-          new EstimateAndInfo(
-              estimatedPose.get(), camToEstimator.photonCamera().getName(), ambiguity));
-    } else {
+    if (results.isEmpty()) {
       return Optional.empty();
     }
+
+    final var latestResult = results.get(results.size() - 1);
+    if (!latestResult.hasTargets()) {
+      return Optional.empty();
+    }
+
+    final var estimatedPose = camToEstimator.estimator.update(latestResult);
+    if (estimatedPose.isEmpty()) {
+      return Optional.empty();
+    }
+
+    final var ambiguity = latestResult.getBestTarget().getPoseAmbiguity();
+    return Optional.of(
+        new EstimateTuple(estimatedPose.get(), camToEstimator.photonCamera().getName(), ambiguity));
   }
 
-  private static Predicate<EstimateAndInfo> isAmbiguityLess(double maxAmbiguity) {
+  private static Predicate<EstimateTuple> isAmbiguityLess(double maxAmbiguity) {
     return estimateAndInfo ->
         estimateAndInfo.visionEstimate.targetsUsed.stream()
             .allMatch(trackedTarget -> trackedTarget.getPoseAmbiguity() < maxAmbiguity);
-  }
-
-  private static boolean isUsingTwoTags(EstimateAndInfo estimateAndInfo) {
-    return estimateAndInfo.visionEstimate.targetsUsed.size() >= 2;
   }
 
   /**
    * Whether max distance to target from current pose falls in range, measured in meters, for
    * accurate readings
    */
-  private static boolean maxDistanceIsInThreshold(EstimateAndInfo estimateAndInfo) {
-    double maxDistance =
-        estimateAndInfo.visionEstimate.targetsUsed.stream()
-            .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
-            .max()
-            .orElse(0.0);
+  private static boolean maxDistanceIsInThreshold(EstimateTuple estimateAndInfo) {
+    Distance maxDistance =
+        Meters.of(
+            estimateAndInfo.visionEstimate.targetsUsed.stream()
+                .mapToDouble(target -> target.getBestCameraToTarget().getTranslation().getNorm())
+                .max()
+                .orElse(0.0));
 
-    return VisionConstants.minCamDistToTag.in(Units.Meters) < maxDistance
-        && maxDistance < VisionConstants.maxCamDistToTag.in(Units.Meters);
+    return RobotMath.measureWithinBounds(
+        maxDistance, VisionConstants.kMinCamDistToTag, VisionConstants.kMaxCamDistToTag);
   }
 
   /** Is the robot on the field based on its current pose */
   private static boolean isOnField(Pose3d pose) {
-    return pose.getX() >= 0.0
-        && pose.getX() <= VisionConstants.kFieldWidth.in(Units.Meters)
-        && pose.getY() >= 0.0
-        && pose.getY() <= VisionConstants.kFieldHeight.in(Units.Meters);
+    final var poseX = pose.getMeasureX();
+    final var poseY = pose.getMeasureY();
+    final var poseZ = pose.getMeasureZ();
+
+    return RobotMath.measureWithinBounds(poseX, Meters.zero(), VisionConstants.kFieldWidth)
+        && RobotMath.measureWithinBounds(poseY, Meters.zero(), VisionConstants.kFieldHeight)
+        && RobotMath.measureWithinBounds(poseZ, Meters.zero(), VisionConstants.kMaxVertDisp);
   }
 
   /**
-   * Checks if the robot is on the field based on camera's pose data. Should be used when camera
-   * readings are available.
+   * @param estTuple the EstimateTuple to check
+   * @return true if the robot is on the field based on camera's pose data, false otherwise.
+   * @implNote Should be used when camerareadings are available.
    */
-  private static boolean isOnField(EstimateAndInfo estimateAndInfo) {
-    return isOnField(estimateAndInfo.visionEstimate.estimatedPose);
+  private static boolean isOnField(EstimateTuple estTuple) {
+    return isOnField(estTuple.visionEstimate.estimatedPose);
   }
 
-  /** Checks if robot pose estimate has a vertical displacement below specified threshold */
-  private static boolean zIsRight(EstimateAndInfo estimateAndInfo) {
-    return Math.abs(estimateAndInfo.visionEstimate.estimatedPose.getZ())
-        < VisionConstants.maxVertDisp.in(Units.Meters);
+  /**
+   * @param estTuple the {@link EstimateTuple} to check.
+   * @return true if pitch in bounds, false otherwise.
+   */
+  private static boolean pitchIsInBounds(EstimateTuple estimateAndInfo, Angle pitchBounds) {
+    final var estPoseX = estimateAndInfo.visionEstimate.estimatedPose.getRotation().getMeasureX();
+    return RobotMath.measureWithinBounds(estPoseX, pitchBounds);
   }
 
-  private static boolean pitchIsInBounds(EstimateAndInfo estimateAndInfo) {
-    return Math.abs(estimateAndInfo.visionEstimate.estimatedPose.getRotation().getX()) < 0.2;
-  }
-
-  private static boolean rollIsInBounds(EstimateAndInfo estimateAndInfo) {
-    return Math.abs(estimateAndInfo.visionEstimate.estimatedPose.getRotation().getY()) < 0.2;
+  /**
+   * @param estTuple the {@link EstimateTuple} to check.
+   * @return true if roll is in bounds, false otherwise.
+   */
+  private static boolean rollIsInBounds(EstimateTuple estimateAndInfo, Angle rollBounds) {
+    final var estPoseX = estimateAndInfo.visionEstimate.estimatedPose.getRotation().getMeasureX();
+    return RobotMath.measureWithinBounds(estPoseX, rollBounds);
   }
 
   public PhotonCamera getCameraOne() {
@@ -197,5 +220,11 @@ public class Vision extends SubsystemBase {
 
   public PhotonCamera getCameraTwo() {
     return aprilCamTwo;
+  }
+
+  @Override
+  public void close() {
+    aprilCamOne.close();
+    aprilCamTwo.close();
   }
 }

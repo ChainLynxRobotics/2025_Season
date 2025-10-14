@@ -1,6 +1,6 @@
 plugins {
     id "java"
-    id "edu.wpi.first.GradleRIO" version "2025.2.1"
+    id "edu.wpi.first.GradleRIO" version "2025.3.2"
     id "com.peterabeles.gversion" version "1.10"
     id "com.diffplug.spotless" version "6.12.0"
 }
@@ -35,11 +35,19 @@ deploy {
                     jvmArgs.add("-XX:MaxGCPauseMillis=50")
 
                     // The options below may improve performance, but should only be enabled on the RIO 2
-                    //
-                    // final MAX_JAVA_HEAP_SIZE_MB = 100;
-                    // jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    // jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
-                    // jvmArgs.add("-XX:+AlwaysPreTouch")
+
+                    final MAX_JAVA_HEAP_SIZE_MB = 100;
+                    jvmArgs.add("-Xmx" + MAX_JAVA_HEAP_SIZE_MB + "M")
+                    jvmArgs.add("-Xms" + MAX_JAVA_HEAP_SIZE_MB + "M")
+                    jvmArgs.add("-XX:+AlwaysPreTouch")
+
+                    // Enable VisualVM connection
+                    jvmArgs.add("-Dcom.sun.management.jmxremote=true")
+                    jvmArgs.add("-Dcom.sun.management.jmxremote.port=1198")
+                    jvmArgs.add("-Dcom.sun.management.jmxremote.local.only=false")
+                    jvmArgs.add("-Dcom.sun.management.jmxremote.ssl=false")
+                    jvmArgs.add("-Dcom.sun.management.jmxremote.authenticate=false")
+                    jvmArgs.add("-Djava.rmi.server.hostname=172.22.11.2") // Replace TE.AM with team number
                 }
 
                 // Static files artifact
@@ -67,6 +75,14 @@ def includeDesktopSupport = true
 task(replayWatch, type: JavaExec) {
     mainClass = "org.littletonrobotics.junction.ReplayWatch"
     classpath = sourceSets.main.runtimeClasspath
+}
+
+test {
+
+    useJUnitPlatform()
+
+    systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
+
 }
 
 // Defining my dependencies. In this case, WPILib (+ friends), and vendor libraries.
@@ -215,4 +231,8 @@ spotless {
         indentWithSpaces(2)
         endWithNewline()
     }
+}
+
+repositories {
+    maven { url 'https://jitpack.io' }
 }

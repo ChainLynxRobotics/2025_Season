@@ -13,7 +13,7 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.Threads;
+import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import org.littletonrobotics.junction.LogFileUtil;
@@ -56,7 +56,7 @@ public class Robot extends LoggedRobot {
     switch (Constants.currentMode) {
       case REAL:
         // Running on a real robot, log to a USB stick ("/U/logs")
-        Logger.addDataReceiver(new WPILOGWriter());
+        Logger.addDataReceiver(new WPILOGWriter("/home/lvuser/logs/"));
         Logger.addDataReceiver(new NT4Publisher());
         break;
 
@@ -82,11 +82,16 @@ public class Robot extends LoggedRobot {
     robotContainer = new RobotContainer();
   }
 
+  @Override
+  public void robotInit() {
+    CameraServer.startAutomaticCapture();
+    // Threads.setCurrentThreadPriority(true, 99);
+  }
+
   /** This function is called periodically during all modes. */
   @Override
   public void robotPeriodic() {
     // Switch thread to high priority to improve loop timing
-    Threads.setCurrentThreadPriority(true, 99);
 
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled commands, running already-scheduled commands, removing
@@ -96,12 +101,13 @@ public class Robot extends LoggedRobot {
     CommandScheduler.getInstance().run();
 
     // Return to normal thread priority
-    Threads.setCurrentThreadPriority(false, 10);
   }
 
   /** This function is called once when the robot is disabled. */
   @Override
-  public void disabledInit() {}
+  public void disabledInit() {
+    robotContainer.resetSubsystems();
+  }
 
   /** This function is called periodically when disabled. */
   @Override
@@ -110,6 +116,7 @@ public class Robot extends LoggedRobot {
   /** This autonomous runs the autonomous command selected by your {@link RobotContainer} class. */
   @Override
   public void autonomousInit() {
+    robotContainer.resetPose();
     autonomousCommand = robotContainer.getAutonomousCommand();
 
     // schedule the autonomous command (example)
@@ -120,9 +127,7 @@ public class Robot extends LoggedRobot {
 
   /** This function is called periodically during autonomous. */
   @Override
-  public void autonomousPeriodic() {
-    robotContainer.driveTipCorrect();
-  }
+  public void autonomousPeriodic() {}
 
   /** This function is called once when teleop is enabled. */
   @Override

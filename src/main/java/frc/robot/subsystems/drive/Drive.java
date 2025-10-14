@@ -26,7 +26,6 @@ import com.pathplanner.lib.util.PathPlannerLogging;
 import edu.wpi.first.hal.FRCNetComm.tInstances;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.hal.HAL;
-import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Matrix;
 import edu.wpi.first.math.estimator.SwerveDrivePoseEstimator;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -48,10 +47,11 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
 import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants;
 import frc.robot.Constants.Mode;
+import frc.robot.generated.LocalADStarAK;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.vision.Vision.PoseEstimate;
-import frc.robot.util.LocalADStarAK;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import org.littletonrobotics.junction.AutoLogOutput;
@@ -69,7 +69,7 @@ public class Drive extends SubsystemBase {
           Math.max(
               Math.hypot(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
               Math.hypot(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)));
-
+  private boolean visionConverge = false;
   // PathPlanner config constants
 
   private static final RobotConfig PP_CONFIG =
@@ -78,10 +78,9 @@ public class Drive extends SubsystemBase {
           Constants.ROBOT_MOI,
           new ModuleConfig(
               TunerConstants.FrontLeft.WheelRadius,
-              TunerConstants.kSpeedAt12Volts.in(MetersPerSecond),
+              DriveConstants.kMaxPathSpeed.in(MetersPerSecond),
               Constants.WHEEL_COF,
-              DCMotor.getKrakenX60Foc(1)
-                  .withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
+              DCMotor.getKrakenX60(1).withReduction(TunerConstants.FrontLeft.DriveMotorGearRatio),
               TunerConstants.FrontLeft.SlipCurrent,
               1),
           getModuleTranslations());
@@ -131,7 +130,7 @@ public class Drive extends SubsystemBase {
         this::getChassisSpeeds,
         this::runVelocity,
         new PPHolonomicDriveController(
-            new PIDConstants(5.0, 0.0, 0.0), new PIDConstants(5.0, 0.0, 0.0)),
+            new PIDConstants(5, 0.0, 0.0), new PIDConstants(5, 0.0, 0.0)),
         PP_CONFIG,
         () -> DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red,
         this);
@@ -340,10 +339,20 @@ public class Drive extends SubsystemBase {
     poseEstimator.resetPosition(rawGyroRotation, getModulePositions(), pose);
   }
 
+  public void resetGyro() {
+    gyroIO.resetGyro();
+  }
+  /** Whether to update more aggressively to vision measurement */
+  public void converge(boolean convergeFaster) {
+    visionConverge = convergeFaster;
+  }
+
   public void updateEstimates(PoseEstimate poseEstimate) {
     final var visionEstimated = poseEstimate.estimatedPose().estimatedPose.toPose2d();
-    final var stddevs = poseEstimate.standardDev();
+    final var stddevs =
+        visionConverge ? poseEstimate.standardDev().times(0.01) : poseEstimate.standardDev();
 
+    System.out.println("stddevs for vision measurement: " + stddevs);
     addVisionMeasurement(visionEstimated, poseEstimate.estimatedPose().timestampSeconds, stddevs);
   }
 
@@ -374,33 +383,5 @@ public class Drive extends SubsystemBase {
       new Translation2d(TunerConstants.BackLeft.LocationX, TunerConstants.BackLeft.LocationY),
       new Translation2d(TunerConstants.BackRight.LocationX, TunerConstants.BackRight.LocationY)
     };
-  }
-
-  public ChassisSpeeds calculateTipCorrection() {
-    Constants.DriveConstants.tipControllerX.setSetpoint(0);
-    Constants.DriveConstants.tipControllerY.setSetpoint(0);
-
-    double tipAngle =
-        Math.atan(
-            Math.sqrt(
-                Math.pow(gyroInputs.xRotation.in(Radians), 2)
-                    + Math.pow(gyroInputs.yRotation.in(Radians), 2)));
-    double fNormal = Constants.ROBOT_MASS_KG * 9.81 * Math.cos(tipAngle);
-    double tipMag = fNormal * Math.sin(tipAngle); // projection of normal force onto horizontal
-    double angle =
-        Math.atan2(
-            gyroInputs.yRotation.in(Radians),
-            gyroInputs.xRotation.in(Radians)); // direction of tip vector relative to x-axis
-
-    double xSpeed =
-        Constants.DriveConstants.tipControllerX.calculate(
-            MathUtil.applyDeadband(
-                tipMag * Math.cos(angle), Constants.DriveConstants.tipDeadband.in(Newtons)));
-    double ySpeed =
-        Constants.DriveConstants.tipControllerX.calculate(
-            MathUtil.applyDeadband(
-                tipMag * Math.sin(angle), Constants.DriveConstants.tipDeadband.in(Newtons)));
-
-    return new ChassisSpeeds(xSpeed, ySpeed, 0);
   }
 }
