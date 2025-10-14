@@ -115,13 +115,13 @@ public final class Constants {
       default:
         return Map.of(
             GameState.L1_SCORE, new AngleAndDistance(Rotations.of(-0.2), Inches.of(7.3)),
-            GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.2), Inches.of(21.3)),
-            GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.2), Inches.of(35)),
-            GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.15), Inches.of(64.9)),
-            GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(32), Inches.of(7)),
-            GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(32), Inches.of(15)),
+            GameState.L2_SCORE, new AngleAndDistance(Rotations.of(0.2), Inches.of(13.3)),
+            GameState.L3_SCORE, new AngleAndDistance(Rotations.of(0.2), Inches.of(28)),
+            GameState.L4_SCORE, new AngleAndDistance(Rotations.of(0.15), Inches.of(60.9)),
+            GameState.L2_ALGAE, new AngleAndDistance(Degrees.of(32), Inches.of(14)),
+            GameState.L3_ALGAE, new AngleAndDistance(Degrees.of(32), Inches.of(35)),
             GameState.HUMAN_PLAYER_STATION,
-                new AngleAndDistance(Rotations.of(-0.09), Inches.of(10)),
+                new AngleAndDistance(Rotations.of(-0.15), Inches.of(17)),
             GameState.NONE, new AngleAndDistance(Rotations.of(-0.25), Inches.of(0)));
       case SIM:
         return Map.of(
